@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>カードめくりゲーム（対戦モード）</title>
+
+    <style>
+        /* ======================================= */
+        /* CSSセクション: 見た目の設定とアニメーション */
+        /* ======================================= */
+        body {
+            text-align: center;
+            font-family: sans-serif;
+            background-color: #e0f7fa;
+            padding: 20px;
+        }
+
+        #game-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #message {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+            min-height: 50px; /* メッセージとスコア表示エリアの高さ確保 */
+            line-height: 1.4;
+        }
+        
+        #start-button {
+            padding: 10px 20px;
+            font-size: 18px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            background-color: #00796b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        #start-button:hover {
+            background-color: #004d40;
+        }
+
+        #card-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 10px;
+            perspective: 800px;
+        }
+
+        .card {
+            width: 100%;
+            padding-bottom: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden; 
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: bold;
+            box-sizing: border-box;
+        }
+
+        /* カードの裏側 (初期状態) */
+        .card-back {
+            background-color: #4db6ac; 
+            color: white;
+        }
+
+        /* カードの表側 */
+        .card-front {
+            background-color: white;
+            color: #00796b;
+            border: 2px solid #00796b;
+            transform: rotateY(180deg); 
+        }
+
+        /* カードがめくられた時の状態 */
+        .card.flipped {
+            transform: rotateY(180deg);
+            cursor: default;
+        }
+        
+        /* ペアが成立したカード */
+        .card.matched .card-back {
+            background-color: #e0e0e0; 
+            color: #b0b0b0;
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>カードめくりゲーム 🃏</h1>
+        <div id="message">下のボタンを押してゲームをスタート！</div>
+        <button id="start-button">ゲームスタート</button>
+        
+        <div id="card-grid">
+            </div>
+    </div>
+
+    <script>
+        /* ================================= */
+        /* JavaScriptセクション: ゲームのロジック */
+        /* ================================= */
+
+        const cardGrid = document.getElementById('card-grid');
+        const startButton = document.getElementById('start-button');
+        const message = document.getElementById('message');
+
+        // 💡【追加】プレイヤーとスコアの管理
+        let currentPlayer = 1; 
+        let scoreP1 = 0;
+        let scoreP2 = 0;
+
+        const cardIcons = ['🍎', '🍌', '🍇', '🍊', '🍋', '🥝', '🍓', '🍒'];
+        let gameCards = [];
+        let flippedCards = [];
+        let lockBoard = false;
+
+        // フィッシャー・イェーツ・シャッフルアルゴリズム
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // 💡【追加】メッセージとスコア表示を更新する関数
+        function updateMessage(text) {
+            message.innerHTML = `${text}<br>P1スコア: ${scoreP1} | P2スコア: ${scoreP2}`;
+        }
+
+        // カードを生成し、シャッフルして、画面に配置する
+        function initializeGame() {
+            // 💡【変更】スコアとプレイヤーを初期化
+            currentPlayer = 1;
+            scoreP1 = 0;
+            scoreP2 = 0;
+            
+            gameCards = [...cardIcons, ...cardIcons];
+            shuffle(gameCards); 
+            cardGrid.innerHTML = ''; 
+
+            gameCards.forEach((icon, index) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.icon = icon;
+                
+                card.innerHTML = `
+                    <div class="card-face card-front">${icon}</div>
+                    <div class="card-face card-back">?</div>
+                `;
+                
+                card.addEventListener('click', flipCard);
+                
+                cardGrid.appendChild(card);
+            });
+
+            flippedCards = [];
+            lockBoard = false;
+            // 💡【変更】初期メッセージに対戦情報を追加
+            updateMessage(`プレイヤー ${currentPlayer} のターンです。`);
+        }
+
+        // カードがクリックされた時の処理
+        function flipCard() {
+            if (lockBoard || this.classList.contains('matched') || flippedCards.includes(this)) {
+                return;
+            }
+
+            this.classList.add('flipped');
+            flippedCards.push(this);
+
+            if (flippedCards.length === 2) {
+                lockBoard = true;
+                checkForMatch();
+            }
+        }
+
+        // 2枚のカードが一致しているか判定する
+        function checkForMatch() {
+            const [card1, card2] = flippedCards;
+            const isMatch = card1.dataset.icon === card2.dataset.icon;
+
+            if (isMatch) {
+                // ✅ 一致した場合
+                
+                // 💡【変更】現在のプレイヤーのスコアを増やす
+                if (currentPlayer === 1) {
+                    scoreP1++;
+                } else {
+                    scoreP2++;
+                }
+
+                updateMessage(`プレイヤー ${currentPlayer} がペアを発見！🎉 続けてプレイ！`);
+                
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                resetBoard(true); // ターン継続 (true)
+            } else {
+                // ❌ 不一致の場合
+                updateMessage('残念、違いました...');
+                
+                // 💡【変更】1秒後に裏側に戻し、ターンを交代
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    resetBoard(false); // ターン交代 (false)
+                }, 1000); 
+            }
+        }
+
+        // ボードの状態をリセットする
+        // 💡【変更】turnStay引数を追加してターン交代を制御
+        function resetBoard(turnStay) { 
+            flippedCards = [];
+            lockBoard = false;
+            
+            // ゲームクリア判定
+            if (document.querySelectorAll('.card:not(.matched)').length === 0) {
+                // 💡【変更】勝利判定のロジック
+                let finalMessage;
+                if (scoreP1 > scoreP2) {
+                    finalMessage = `🎊 プレイヤー 1 の勝利です！ (${scoreP1} vs ${scoreP2}) 🎊`;
+                } else if (scoreP2 > scoreP1) {
+                    finalMessage = `🎊 プレイヤー 2 の勝利です！ (${scoreP2} vs ${scoreP1}) 🎊`;
+                } else {
+                    finalMessage = `🤝 引き分けです！ (${scoreP1} vs ${scoreP2}) 🤝`;
+                }
+                
+                updateMessage(finalMessage);
+                startButton.textContent = 'もう一度プレイ';
+                startButton.disabled = false;
+                
+            } else if (!lockBoard) {
+                // ペア不成立の場合はプレイヤー交代
+                if (!turnStay) {
+                    currentPlayer = currentPlayer === 1 ? 2 : 1;
+                }
+                
+                // ターンメッセージを更新
+                updateMessage(`プレイヤー ${currentPlayer} のターンです。`);
+            }
+        }
+
+        // スタートボタンのイベントリスナー
+        startButton.addEventListener('click', () => {
+            startButton.disabled = true;
+            initializeGame();
+        });
+
+        // ページロード時の初期設定
+        startButton.disabled = false;
+
+    </script>
+</body>
+</html>
