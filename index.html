@@ -24,18 +24,19 @@
         body {
             font-family: 'Arial Black', sans-serif;
             text-align: center;
-            /* 派手なグラデーション背景 */
             background: linear-gradient(135deg, #1f083d 0%, #000000 100%);
-            color: #ffde59; /* 文字色をゴールド系に */
+            color: #ffde59;
             padding-top: 50px;
             
             /* 画面いっぱいに広げる設定を修正 (dvhを追加) */
             min-height: 100vh;
-            min-height: 100dvh; /* スマホの動的なビューポート高に対応 */
+            min-height: 100dvh; 
 
             margin: 0;
             position: relative; 
-            overflow: hidden; /* 左右装飾が画面外に出るのを防ぐ */
+            /* 💡 修正: 横方向のはみ出しを隠すことで、縮尺のズレを防ぐ */
+            overflow-x: hidden;
+            overflow-y: scroll;
         }
 
         /* 左右の豪華な装飾 */
@@ -44,26 +45,26 @@
             content: '';
             position: fixed;
             top: 0;
-            width: 150px; /* 装飾の幅 */
+            width: 150px;
             height: 100%;
-            background: linear-gradient(to bottom, #ffd700, #daa520, #ffd700); /* 黄金のグラデーション */
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.7), 0 0 60px rgba(255, 215, 0, 0.5); /* 輝くシャドウ */
+            background: linear-gradient(to bottom, #ffd700, #daa520, #ffd700);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.7), 0 0 60px rgba(255, 215, 0, 0.5);
             
-            /* 💡 修正点: z-indexを高く設定して、装飾が消えないようにする */
+            /* 💡 修正: z-indexを高く設定し、背景に隠れないようにする */
             z-index: 10; 
             
-            animation: shine 3s infinite alternate; /* 光が流れるアニメーション */
+            animation: shine 3s infinite alternate;
         }
 
         body::before {
-            left: -50px; /* 少し画面外から始まるように調整 */
-            transform: skewX(-15deg); /* 斜めに傾ける */
+            left: -50px;
+            transform: skewX(-15deg);
             border-right: 5px solid #ffde59;
         }
 
         body::after {
-            right: -50px; /* 少し画面外から始まるように調整 */
-            transform: skewX(15deg); /* 斜めに傾ける */
+            right: -50px;
+            transform: skewX(15deg);
             border-left: 5px solid #ffde59;
         }
 
@@ -83,11 +84,12 @@
         /* タイトル */
         h1 {
             font-size: 3em;
-            text-shadow: 0 0 10px rgba(255, 222, 89, 0.7); /* ゴールドの輝き */
+            text-shadow: 0 0 10px rgba(255, 222, 89, 0.7);
             margin-bottom: 40px;
-            /* 💡 追加: 左右の装飾より手前に来るように */
             position: relative; 
             z-index: 20;
+            /* 💡 修正: モバイル向けにフォントサイズを調整 */
+            font-size: 2.5em; 
         }
         
         h3 {
@@ -98,7 +100,8 @@
 
         /* 抽選番号の表示エリア */
         #current-number {
-            font-size: 12em; 
+            /* 💡 修正: サイズを縮小し、モバイル画面に収まるようにする */
+            font-size: 8em; /* 12emから8emへ縮小 */
             font-weight: 900;
             color: #333;
             margin: 40px auto;
@@ -107,37 +110,35 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 320px; 
-            height: 320px; 
-            border-radius: 50%; /* 正円に */
+            width: 250px; /* 320pxから250pxへ縮小 */
+            height: 250px; /* 320pxから250pxへ縮小 */
+            border-radius: 50%;
             box-shadow: 0 0 40px rgba(255, 222, 89, 0.8), 0 10px 30px rgba(0, 0, 0, 0.5);
             transition: all 0.2s ease-out;
-            /* 💡 追加: 左右の装飾より手前に来るように */
             position: relative;
             z-index: 20;
         }
 
-        /* 抽選中のアニメーション */
+        /* 抽選中のアニメーション (省略) */
         .rolling {
-            background: linear-gradient(to right, #e74c3c, #f39c12); /* 虹色風グラデ */
+            background: linear-gradient(to right, #e74c3c, #f39c12);
             border-color: #f39c12;
             color: white;
-            /* 点滅と色の回転アニメーション */
             animation: pulse 0.5s infinite alternate, 
                        spin-color 2s infinite linear,
                        roll-text 0.1s infinite; 
         }
         
-        /* 確定時のアニメーション */
+        /* 確定時のアニメーション (省略) */
         .confirmed {
-            background-color: #5cb85c; /* 確定色は緑 */
+            background-color: #5cb85c;
             color: white;
             border-color: #4cae4c;
             animation: bounceIn 0.5s ease-out;
             box-shadow: 0 0 40px #5cb85c, 0 0 20px #fff; 
         }
 
-        /* アニメーションのキーフレーム */
+        /* アニメーションのキーフレーム (省略) */
         @keyframes pulse {
             from { transform: scale(1); opacity: 0.8; }
             to { transform: scale(1.05); opacity: 1; }
@@ -169,51 +170,35 @@
             font-size: 2em;
             font-weight: bold;
             cursor: pointer;
-            background-color: #e74c3c; /* GO!は情熱的な赤 */
+            background-color: #e74c3c;
             color: white;
             border: none;
             border-radius: 15px;
             margin-bottom: 50px;
             box-shadow: 0 8px #c0392b; 
             transition: all 0.1s;
-            /* 💡 追加: 左右の装飾より手前に来るように */
             position: relative;
             z-index: 20;
         }
 
-        /* GO!ボタンのホバー/アクティブ */
-        #draw-button:hover:not(:disabled) {
-            background-color: #c0392b;
-        }
-        #draw-button:active {
-            transform: translateY(6px);
-            box-shadow: 0 2px #c0392b;
-        }
+        /* GO!ボタンのホバー/アクティブ (省略) */
+        #draw-button:hover:not(:disabled) { background-color: #c0392b; }
+        #draw-button:active { transform: translateY(6px); box-shadow: 0 2px #c0392b; }
         
-        /* STOPボタンのデザイン (抽選中) */
+        /* STOPボタンのデザイン (抽選中) (省略) */
         #draw-button.stop-active {
-            background-color: #2ecc71; /* STOPは鮮やかな緑 */
+            background-color: #2ecc71;
             box-shadow: 0 8px #27ae60;
-            transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s; /* スムーズに切り替わるように設定 */
+            transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s;
         }
         
-        /* STOPボタンのホバー/アクティブ */
-        #draw-button.stop-active:hover {
-            background-color: #27ae60;
-        }
-
-        #draw-button.stop-active:active {
-            transform: translateY(6px);
-            box-shadow: 0 2px #27ae60;
-        }
+        /* STOPボタンのホバー/アクティブ (省略) */
+        #draw-button.stop-active:hover { background-color: #27ae60; }
+        #draw-button.stop-active:active { transform: translateY(6px); box-shadow: 0 2px #27ae60; }
         
-        #draw-button:disabled {
-            background-color: #555;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
+        #draw-button:disabled { background-color: #555; box-shadow: none; cursor: not-allowed; }
         
-        /* 履歴エリア */
+        /* 履歴エリア (省略) */
         #history {
             margin-top: 50px;
             max-width: 800px;
@@ -223,7 +208,6 @@
             border: 2px solid #ffde59; 
             background-color: rgba(0, 0, 0, 0.5); 
             border-radius: 10px;
-            /* 💡 追加: 左右の装飾より手前に来るように */
             position: relative;
             z-index: 20;
         }
@@ -236,12 +220,11 @@
             color: #eee;
         }
 
-        /* クレジット表記のスタイル */
+        /* クレジット表記のスタイル (省略) */
         .credit {
             margin-top: 20px;
             font-size: 0.8em;
             color: #999;
-            /* 💡 追加: 左右の装飾より手前に来るように */
             position: relative;
             z-index: 20;
         }
@@ -251,6 +234,19 @@
         }
         .credit a:hover {
             text-decoration: underline;
+        }
+
+        /* 💡 追加: 768px以上の画面（タブレットやPC）向けの大きなサイズを適用 */
+        @media (min-width: 768px) {
+            h1 {
+                font-size: 3em; 
+            }
+
+            #current-number {
+                font-size: 12em; 
+                width: 320px;
+                height: 320px;
+            }
         }
 
     </style>
