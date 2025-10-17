@@ -8,14 +8,27 @@
         /* CSSセクション: 装飾とサイズ */
         /* ==================================== */
         
+        /* ========== 【修正箇所】 ========== */
+        /* 1. HTML要素にも背景色と高さを設定して、画面全体を確実にカバー */
+        html {
+            height: 100%;
+            background-color: #1f083d; /* bodyの背景に近い色を設定 */
+        }
+        /* ============================ */
+        
         /* 画面全体 (body) の装飾 */
         body {
             font-family: 'Arial Black', sans-serif;
             text-align: center;
+            /* 派手なグラデーション背景 */
             background: linear-gradient(135deg, #1f083d 0%, #000000 100%);
             color: #ffde59;
             padding-top: 50px;
+            
+            /* 画面いっぱいに広げる設定を修正 (dvhを追加) */
             min-height: 100vh;
+            min-height: 100dvh; /* スマホの動的なビューポート高に対応 */
+            
             margin: 0;
             position: relative; 
             overflow: hidden;
@@ -203,25 +216,16 @@
             color: #eee;
         }
 
-        /* クレジット表記のスタイル（省略） */
-        .credit {
-            margin-top: 20px;
-            font-size: 0.8em;
-            color: #999;
-        }
-        .credit a {
-            color: #ffde59;
-            text-decoration: none;
-        }
-        .credit a:hover {
-            text-decoration: underline;
-        }
+        /* クレジット表記のスタイル（削除されていますが残します） */
+        /* .credit { ... } */
+        /* .credit a { ... } */
+        /* .credit a:hover { ... } */
 
     </style>
 </head>
 <body>
 
-    <h1>✨ BIG CHANCE BINGO MACHINE ✨</h1>
+    <h1>✨ 葵のビンゴ抽選マシン！！ ✨</h1>
     
     <audio id="roulette-audio" src="新規録音 11.m4a"></audio>
     <audio id="win-audio" src="新規録音 12.m4a"></audio>
@@ -238,8 +242,6 @@
         </div>
     </div>
     
-
-
     <script>
         /* ==================================== */
         /* JavaScriptセクションは変更なし */
