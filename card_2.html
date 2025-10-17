@@ -2,56 +2,59 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>カードめくりゲーム（対戦モード）</title>
+    <title>カードめくりゲーム（36枚モード対応）</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
 
     <style>
         /* ======================================= */
-        /* CSSセクション: 見た目の設定とアニメーション */
+        /* CSSセクション */
         /* ======================================= */
         body {
             text-align: center;
             font-family: sans-serif;
-            background-color: #e0f7fa;
-            padding: 20px;
+            background-color: #f7ffec;
+            padding: 10px;
         }
 
         #game-container {
-            max-width: 500px;
+            width: 100%; 
+            box-sizing: border-box;
             margin: 0 auto;
             background-color: white;
-            padding: 20px;
+            padding: 15px; 
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
+        
+        @media (min-width: 600px) {
+            #game-container {
+                max-width: 600px; /* 6列グリッドに合わせ、PC/タブレットの最大幅を広げる */
+            }
+        }
 
         #message {
-            font-size: 18px;
+            font-size: 16px;
             color: #333;
-            margin-bottom: 15px;
-            min-height: 50px; /* メッセージとスコア表示エリアの高さ確保 */
+            margin-bottom: 10px;
+            min-height: 45px;
             line-height: 1.4;
         }
         
-        #start-button {
-            padding: 10px 20px;
-            font-size: 18px;
-            margin-bottom: 20px;
+        .mode-button {
+            padding: 8px 12px;
+            font-size: 14px;
+            margin: 0 4px 15px;
             cursor: pointer;
-            background-color: #00796b;
+            background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 5px;
-            transition: background-color 0.2s;
-        }
-        #start-button:hover {
-            background-color: #004d40;
         }
 
         #card-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 10px;
-            perspective: 800px;
+            gap: 5px; 
+            perspective: 1000px;
         }
 
         .card {
@@ -69,36 +72,32 @@
             width: 100%;
             height: 100%;
             backface-visibility: hidden; 
-            border-radius: 8px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
+            font-size: 40px; 
             font-weight: bold;
             box-sizing: border-box;
         }
 
-        /* カードの裏側 (初期状態) */
         .card-back {
-            background-color: #4db6ac; 
+            background-color: #00897b; 
             color: white;
         }
 
-        /* カードの表側 */
         .card-front {
             background-color: white;
-            color: #00796b;
-            border: 2px solid #00796b;
+            color: #004d40;
+            border: 2px solid #00897b;
             transform: rotateY(180deg); 
         }
 
-        /* カードがめくられた時の状態 */
         .card.flipped {
             transform: rotateY(180deg);
             cursor: default;
         }
         
-        /* ペアが成立したカード */
         .card.matched .card-back {
             background-color: #e0e0e0; 
             color: #b0b0b0;
@@ -108,9 +107,19 @@
 </head>
 <body>
     <div id="game-container">
-        <h1>カードめくりゲーム 🃏</h1>
+        <h1>カードめくりゲーム 🥩🥦🍎</h1>
+        
         <div id="message">下のボタンを押してゲームをスタート！</div>
-        <button id="start-button">ゲームスタート</button>
+
+        <div id="start-area">
+            <button id="start-button">ゲームスタート (枚数を選択)</button>
+        </div>
+        
+        <div id="mode-selection" style="display: none;">
+            <button class="mode-button" data-cards="16">16枚 (4x4)</button>
+            <button class="mode-button" data-cards="24">24枚 (6x4)</button>
+            <button class="mode-button" data-cards="36">36枚 (6x6)</button>
+        </div>
         
         <div id="card-grid">
             </div>
@@ -118,24 +127,33 @@
 
     <script>
         /* ================================= */
-        /* JavaScriptセクション: ゲームのロジック */
+        /* JavaScriptセクション */
         /* ================================= */
 
         const cardGrid = document.getElementById('card-grid');
         const startButton = document.getElementById('start-button');
+        const modeSelection = document.getElementById('mode-selection');
         const message = document.getElementById('message');
+        const modeButtons = document.querySelectorAll('.mode-button');
+        const startArea = document.getElementById('start-area');
 
-        // 💡【追加】プレイヤーとスコアの管理
         let currentPlayer = 1; 
         let scoreP1 = 0;
         let scoreP2 = 0;
 
-        const cardIcons = ['🍎', '🍌', '🍇', '🍊', '🍋', '🥝', '🍓', '🍒'];
+        // 💡【修正点】カードの種類を最大18種類に増やしました (36枚用)
+        const allCardIcons = [
+            '🍎', '🍌', '🍇', '🍊', '🍋', '🥝', '🍓', '🍒', 
+            '🥦', '🥕', '🥔', '🌶️', '🌽', '🍄', '🍆', '🥬',
+            '🥩', '🍗' // 新たに追加
+        ];
+        
         let gameCards = [];
         let flippedCards = [];
         let lockBoard = false;
+        let totalPairs = 0;
 
-        // フィッシャー・イェーツ・シャッフルアルゴリズム
+        // 配列シャッフル関数
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -143,20 +161,54 @@
             }
         }
 
-        // 💡【追加】メッセージとスコア表示を更新する関数
+        // スコア表示機能
         function updateMessage(text) {
             message.innerHTML = `${text}<br>P1スコア: ${scoreP1} | P2スコア: ${scoreP2}`;
         }
 
-        // カードを生成し、シャッフルして、画面に配置する
-        function initializeGame() {
-            // 💡【変更】スコアとプレイヤーを初期化
+        // ゲームの準備 (枚数に基づいてカードを絞り込む)
+        function prepareGame(cardCount) {
+            const pairs = cardCount / 2;
+            totalPairs = pairs;
+            // 必要な数だけカードの種類を選び、2倍にしてシャッフル
+            let selectedIcons = allCardIcons.slice(0, pairs);
+            gameCards = [...selectedIcons, ...selectedIcons];
+            shuffle(gameCards); 
+        }
+
+        // 💡【修正点】グリッドの列数設定
+        function setGridStyle(cardCount) {
+            let columns;
+            if (cardCount === 16) {
+                columns = 4; // 4x4
+            } else if (cardCount === 24) {
+                columns = 6; // 6x4
+            } else if (cardCount === 36) {
+                columns = 6; // 💡 36枚は 6x6 レイアウトを採用
+            } else {
+                columns = 4;
+            }
+            cardGrid.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+        }
+
+        // カードを生成し、画面に配置する
+        function initializeGame(cardCount) {
+            // エラーチェック（カードアイコンが足りるか）
+            if ((cardCount / 2) > allCardIcons.length) {
+                alert(`カードが足りません。最大で${allCardIcons.length * 2}枚までです。`);
+                return;
+            }
+            
+            modeSelection.style.display = 'none';
+            
+            prepareGame(cardCount);
+            setGridStyle(cardCount);
+
             currentPlayer = 1;
             scoreP1 = 0;
             scoreP2 = 0;
-            
-            gameCards = [...cardIcons, ...cardIcons];
-            shuffle(gameCards); 
+            flippedCards = [];
+            lockBoard = false;
             cardGrid.innerHTML = ''; 
 
             gameCards.forEach((icon, index) => {
@@ -170,14 +222,10 @@
                 `;
                 
                 card.addEventListener('click', flipCard);
-                
                 cardGrid.appendChild(card);
             });
 
-            flippedCards = [];
-            lockBoard = false;
-            // 💡【変更】初期メッセージに対戦情報を追加
-            updateMessage(`プレイヤー ${currentPlayer} のターンです。`);
+            updateMessage(`プレイヤー ${currentPlayer} のターンです。 (全 ${totalPairs} ペア)`);
         }
 
         // カードがクリックされた時の処理
@@ -185,7 +233,6 @@
             if (lockBoard || this.classList.contains('matched') || flippedCards.includes(this)) {
                 return;
             }
-
             this.classList.add('flipped');
             flippedCards.push(this);
 
@@ -201,62 +248,54 @@
             const isMatch = card1.dataset.icon === card2.dataset.icon;
 
             if (isMatch) {
-                // ✅ 一致した場合
-                
-                // 💡【変更】現在のプレイヤーのスコアを増やす
                 if (currentPlayer === 1) {
                     scoreP1++;
                 } else {
                     scoreP2++;
                 }
-
-                updateMessage(`プレイヤー ${currentPlayer} がペアを発見！🎉 続けてプレイ！`);
-                
+                updateMessage(`P${currentPlayer}がペア発見！🎉 続けてプレイ！`);
                 card1.classList.add('matched');
                 card2.classList.add('matched');
-                resetBoard(true); // ターン継続 (true)
+                resetBoard(true); 
             } else {
-                // ❌ 不一致の場合
                 updateMessage('残念、違いました...');
-                
-                // 💡【変更】1秒後に裏側に戻し、ターンを交代
                 setTimeout(() => {
                     card1.classList.remove('flipped');
                     card2.classList.remove('flipped');
-                    resetBoard(false); // ターン交代 (false)
+                    resetBoard(false); 
                 }, 1000); 
             }
         }
 
         // ボードの状態をリセットする
-        // 💡【変更】turnStay引数を追加してターン交代を制御
         function resetBoard(turnStay) { 
             flippedCards = [];
             lockBoard = false;
             
             // ゲームクリア判定
-            if (document.querySelectorAll('.card:not(.matched)').length === 0) {
-                // 💡【変更】勝利判定のロジック
+            if (scoreP1 + scoreP2 === totalPairs) {
                 let finalMessage;
                 if (scoreP1 > scoreP2) {
-                    finalMessage = `🎊 プレイヤー 1 の勝利です！ (${scoreP1} vs ${scoreP2}) 🎊`;
+                    finalMessage = `🎊 P1の勝利！ (${scoreP1} vs ${scoreP2}) 🎊`;
                 } else if (scoreP2 > scoreP1) {
-                    finalMessage = `🎊 プレイヤー 2 の勝利です！ (${scoreP2} vs ${scoreP1}) 🎊`;
+                    finalMessage = `🎊 P2の勝利！ (${scoreP2} vs ${scoreP1}) 🎊`;
                 } else {
-                    finalMessage = `🤝 引き分けです！ (${scoreP1} vs ${scoreP2}) 🤝`;
+                    finalMessage = `🤝 引き分け！ (${scoreP1} vs ${scoreP2}) 🤝`;
                 }
                 
                 updateMessage(finalMessage);
+                
+                // UIを初期状態に戻す
+                startArea.style.display = 'block';
+                modeSelection.style.display = 'none';
                 startButton.textContent = 'もう一度プレイ';
                 startButton.disabled = false;
+                cardGrid.innerHTML = ''; 
                 
             } else if (!lockBoard) {
-                // ペア不成立の場合はプレイヤー交代
                 if (!turnStay) {
                     currentPlayer = currentPlayer === 1 ? 2 : 1;
                 }
-                
-                // ターンメッセージを更新
                 updateMessage(`プレイヤー ${currentPlayer} のターンです。`);
             }
         }
@@ -264,12 +303,22 @@
         // スタートボタンのイベントリスナー
         startButton.addEventListener('click', () => {
             startButton.disabled = true;
-            initializeGame();
+            startArea.style.display = 'none';
+            modeSelection.style.display = 'block';
+            message.innerHTML = '難易度（枚数）を選んでください';
+        });
+        
+        // モード選択ボタンのイベントリスナー
+        modeButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const cardCount = parseInt(e.target.dataset.cards);
+                initializeGame(cardCount);
+            });
         });
 
         // ページロード時の初期設定
         startButton.disabled = false;
-
+        startArea.style.display = 'block';
     </script>
 </body>
 </html>
