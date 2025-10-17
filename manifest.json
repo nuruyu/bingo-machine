@@ -1,7 +1,7 @@
 {
-  "name": "豪華ビンゴ抽選マシン",
+  "name": "葵のビンゴ抽選マシン！！",
   "short_name": "ビンゴマシン",
-  "description": "効果音と豪華な装飾がついたビンゴ抽選マシン",
+  "description": "葵のビンゴ抽選マシン！！",
   "start_url": "./index.html", 
   "display": "standalone",
   "background_color": "#1f083d",
