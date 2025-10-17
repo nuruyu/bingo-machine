@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>豪華ビンゴ抽選マシン（視覚改善版）</title>
+    <style>
+        /* ==================================== */
+        /* CSSセクション: 装飾とサイズ */
+        /* ==================================== */
+        
+        /* 画面全体 (body) の装飾 */
+        body {
+            font-family: 'Arial Black', sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #1f083d 0%, #000000 100%);
+            color: #ffde59;
+            padding-top: 50px;
+            min-height: 100vh;
+            margin: 0;
+            position: relative; 
+            overflow: hidden;
+        }
+
+        /* 左右の豪華な装飾 */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            width: 150px;
+            height: 100%;
+            background: linear-gradient(to bottom, #ffd700, #daa520, #ffd700);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.7), 0 0 60px rgba(255, 215, 0, 0.5);
+            z-index: -1;
+            animation: shine 3s infinite alternate;
+        }
+
+        body::before {
+            left: -50px;
+            transform: skewX(-15deg);
+            border-right: 5px solid #ffde59;
+        }
+
+        body::after {
+            right: -50px;
+            transform: skewX(15deg);
+            border-left: 5px solid #ffde59;
+        }
+
+        /* 装飾内の輝きアニメーション */
+        @keyframes shine {
+            0% {
+                background-position: 0% 0%;
+                box-shadow: 0 0 30px rgba(255, 215, 0, 0.7), 0 0 60px rgba(255, 215, 0, 0.5);
+            }
+            100% {
+                background-position: 100% 100%;
+                box-shadow: 0 0 40px rgba(255, 215, 0, 0.9), 0 0 80px rgba(255, 215, 0, 0.7);
+            }
+        }
+
+
+        /* タイトル */
+        h1 {
+            font-size: 3em;
+            text-shadow: 0 0 10px rgba(255, 222, 89, 0.7);
+            margin-bottom: 40px;
+        }
+        
+        h3 {
+            color: #eee;
+            border-bottom: 1px dashed #555;
+            padding-bottom: 5px;
+        }
+
+        /* 抽選番号の表示エリア */
+        #current-number {
+            font-size: 12em; 
+            font-weight: 900;
+            color: #333;
+            margin: 40px auto;
+            border: 8px solid #ffde59;
+            background-color: #fff; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 320px; 
+            height: 320px; 
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(255, 222, 89, 0.8), 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.2s ease-out;
+        }
+
+        /* 抽選中のアニメーション */
+        .rolling {
+            background: linear-gradient(to right, #e74c3c, #f39c12);
+            border-color: #f39c12;
+            color: white;
+            animation: pulse 0.5s infinite alternate, 
+                       spin-color 2s infinite linear,
+                       roll-text 0.1s infinite; 
+        }
+        
+        /* 確定時のアニメーション */
+        .confirmed {
+            background-color: #5cb85c;
+            color: white;
+            border-color: #4cae4c;
+            animation: bounceIn 0.5s ease-out;
+            box-shadow: 0 0 40px #5cb85c, 0 0 20px #fff; 
+        }
+
+        /* アニメーションのキーフレーム（省略） */
+        @keyframes pulse {
+            from { transform: scale(1); opacity: 0.8; }
+            to { transform: scale(1.05); opacity: 1; }
+        }
+        
+        @keyframes spin-color {
+            0% { box-shadow: 0 0 20px #e74c3c; }
+            50% { box-shadow: 0 0 20px #f39c12; }
+            100% { box-shadow: 0 0 20px #e74c3c; }
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.3) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(10deg); opacity: 1; }
+            70% { transform: scale(0.9) rotate(-5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        
+        @keyframes roll-text {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(2px); }
+            100% { transform: translateX(0); }
+        }
+
+
+        /* 抽選ボタン (GO!状態) */
+        #draw-button {
+            padding: 25px 80px; 
+            font-size: 2em;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #e74c3c; /* GO!は情熱的な赤 */
+            color: white;
+            border: none;
+            border-radius: 15px;
+            margin-bottom: 50px;
+            box-shadow: 0 8px #c0392b; 
+            transition: all 0.1s;
+        }
+
+        /* GO!ボタンのホバー/アクティブ */
+        #draw-button:hover:not(:disabled) {
+            background-color: #c0392b;
+        }
+        #draw-button:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px #c0392b;
+        }
+        
+        /* STOPボタンのデザイン (抽選中) */
+        #draw-button.stop-active {
+            background-color: #2ecc71; /* STOPは鮮やかな緑 */
+            box-shadow: 0 8px #27ae60;
+            transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s; /* スムーズに切り替わるように設定 */
+        }
+        
+        /* STOPボタンのホバー/アクティブ */
+        #draw-button.stop-active:hover {
+            background-color: #27ae60;
+        }
+
+        #draw-button.stop-active:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px #27ae60;
+        }
+        
+        #draw-button:disabled {
+            background-color: #555;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        
+        /* 履歴エリア（省略） */
+        #history {
+            margin-top: 50px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 20px;
+            border: 2px solid #ffde59; 
+            background-color: rgba(0, 0, 0, 0.5); 
+            border-radius: 10px;
+        }
+        
+        #history-list {
+            margin-top: 15px;
+            font-size: 1.2em;
+            word-break: break-all;
+            text-align: center;
+            color: #eee;
+        }
+
+        /* クレジット表記のスタイル（省略） */
+        .credit {
+            margin-top: 20px;
+            font-size: 0.8em;
+            color: #999;
+        }
+        .credit a {
+            color: #ffde59;
+            text-decoration: none;
+        }
+        .credit a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>✨ BIG CHANCE BINGO MACHINE ✨</h1>
+    
+    <audio id="roulette-audio" src="新規録音 11.m4a"></audio>
+    <audio id="win-audio" src="新規録音 12.m4a"></audio>
+
+    <div>現在の抽選番号</div>
+    <div id="current-number">--</div>
+    
+    <button id="draw-button">GO！</button>
+
+    <div id="history">
+        <h3>抽選履歴 (残り <span id="remaining-count">75</span> 個)</h3>
+        <div id="history-list">
+            まだ数字は引かれていません。
+        </div>
+    </div>
+    
+    <div class="credit">
+        BGM/効果音: <a href="https://otologic.jp/" target="_blank">OtoLogic</a>
+    </div>
+
+
+    <script>
+        /* ==================================== */
+        /* JavaScriptセクションは変更なし */
+        /* ==================================== */
+        
+        const totalNumbers = 75;
+        const animationDuration = 9000; 
+        const stepInterval = 100;
+
+        let availableNumbers = []; 
+        let drawnNumbers = []; 
+        let isDrawing = false;
+        let animationInterval;
+        let autoStopTimeout;
+
+        let drawButton;
+        let currentNumberElement;
+        let historyList;
+        let remainingCountElement;
+        let rouletteAudio;
+        let winAudio;
+
+        /**
+         * 状態をリセットし、抽選プールを初期化する
+         */
+        function resetMachine() {
+            availableNumbers = Array.from({ length: totalNumbers }, (_, i) => i + 1);
+            drawnNumbers = [];
+            
+            currentNumberElement.textContent = '--';
+            currentNumberElement.classList.remove('confirmed', 'rolling');
+            
+            drawButton.textContent = 'GO！';
+            drawButton.classList.remove('stop-active');
+            drawButton.disabled = false;
+            
+            isDrawing = false;
+
+            if (rouletteAudio) {
+                rouletteAudio.pause();
+                rouletteAudio.currentTime = 0;
+            }
+            if (winAudio) {
+                winAudio.pause();
+                winAudio.currentTime = 0;
+            }
+
+            updateHistory();
+        }
+
+        /**
+         * 抽選を確定させ、結果を表示する
+         */
+        function finalizeDraw() {
+            clearInterval(animationInterval);
+            clearTimeout(autoStopTimeout);
+
+            // --- 回転音の停止と決定音の再生 ---
+            if (rouletteAudio) {
+                rouletteAudio.pause();
+                rouletteAudio.currentTime = 0;
+            }
+            if (winAudio) {
+                winAudio.currentTime = 0;
+                winAudio.play().catch(error => {
+                    console.warn("決定音の再生に失敗しました。", error);
+                });
+            }
+            // ------------------------------------
+
+            // --- 抽選確定ロジック ---
+            if (availableNumbers.length > 0) {
+                const displayedNumber = parseInt(currentNumberElement.textContent);
+                let drawnNumber;
+
+                if (availableNumbers.includes(displayedNumber)) {
+                    drawnNumber = displayedNumber;
+                } else {
+                    const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+                    drawnNumber = availableNumbers[randomIndex];
+                }
+
+                const drawIndex = availableNumbers.indexOf(drawnNumber);
+                if (drawIndex > -1) {
+                    availableNumbers.splice(drawIndex, 1);
+                }
+                
+                drawnNumbers.push(drawnNumber);
+
+                currentNumberElement.textContent = drawnNumber;
+                currentNumberElement.classList.remove('rolling');
+                currentNumberElement.classList.add('confirmed');
+                updateHistory();
+                
+                drawButton.textContent = 'GO！';
+                drawButton.classList.remove('stop-active');
+                drawButton.disabled = false;
+                isDrawing = false;
+                
+            } else {
+                currentNumberElement.textContent = 'FIN';
+                currentNumberElement.classList.remove('rolling');
+                alert('全ての数字を抽選しました！');
+                drawButton.disabled = true;
+                isDrawing = false;
+            }
+        }
+        
+        /**
+         * ユーザーによる手動停止
+         */
+        function manualStop() {
+            if (isDrawing) {
+                clearTimeout(autoStopTimeout); 
+                finalizeDraw();
+            }
+        }
+
+        /**
+         * 数字を抽選し、表示する（GOボタンの機能）
+         */
+        function drawNumber() {
+            if (availableNumbers.length === 0 || isDrawing) {
+                return; 
+            }
+            
+            isDrawing = true;
+            drawButton.textContent = 'STOP'; // ボタンをSTOPに変更
+            drawButton.classList.add('stop-active'); // STOP用のCSSクラスを適用
+            
+            currentNumberElement.classList.remove('confirmed');
+            currentNumberElement.classList.add('rolling');
+            
+            // --- 回転音の再生開始 ---
+            if (rouletteAudio) {
+                rouletteAudio.currentTime = 0;
+                rouletteAudio.play().catch(error => {
+                    console.warn("回転音の自動再生に失敗しました（ブラウザの制限）。", error);
+                });
+            }
+            
+            // --- 自動停止タイマー設定（音楽終了に合わせる） ---
+            autoStopTimeout = setTimeout(finalizeDraw, animationDuration); 
+            
+            // --- 抽選アニメーション ---
+            animationInterval = setInterval(() => {
+                const tempIndex = Math.floor(Math.random() * availableNumbers.length);
+                const dummyNumber = availableNumbers.length > 0 ? availableNumbers[tempIndex] : Math.floor(Math.random() * 75) + 1;
+                currentNumberElement.textContent = dummyNumber;
+            }, stepInterval);
+        }
+        
+        /**
+         * 抽選履歴と残り回数を更新する
+         */
+        function updateHistory() {
+            historyList.textContent = drawnNumbers.length > 0 ? drawnNumbers.join(' ・ ') : 'まだ数字は引かれていません。';
+            remainingCountElement.textContent = availableNumbers.length;
+        }
+
+
+        /**
+         * アプリ全体の初期化処理
+         */
+        function initializeApp() {
+            drawButton = document.getElementById('draw-button');
+            currentNumberElement = document.getElementById('current-number');
+            historyList = document.getElementById('history-list');
+            remainingCountElement = document.getElementById('remaining-count');
+            rouletteAudio = document.getElementById('roulette-audio');
+            winAudio = document.getElementById('win-audio');
+
+            resetMachine();
+            
+            // ボタンのクリックイベントで状態を切り替え
+            drawButton.addEventListener('click', () => {
+                if (!isDrawing) {
+                    drawNumber(); // GO状態 -> 抽選開始
+                } else {
+                    manualStop(); // STOP状態 -> 抽選停止
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeApp);
+
+    </script>
+</body>
+</html>
