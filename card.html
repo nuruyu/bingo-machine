@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>カードめくりゲーム（統合版）</title>
+
+    <style>
+        /* ======================================= */
+        /* CSSセクション: 見た目の設定とアニメーション */
+        /* ======================================= */
+        body {
+            text-align: center;
+            font-family: sans-serif;
+            background-color: #e0f7fa;
+            padding: 20px;
+        }
+
+        #game-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #message {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+            height: 25px; /* メッセージ表示エリアの高さ確保 */
+        }
+        
+        #start-button {
+            padding: 10px 20px;
+            font-size: 18px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            background-color: #00796b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #card-grid {
+            display: grid;
+            /* 4列のグリッドレイアウト (16枚カード用) */
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 10px;
+            perspective: 800px; /* 3D回転のために必要 */
+        }
+
+        .card {
+            width: 100%;
+            padding-bottom: 100%; /* 正方形を維持 */
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden; 
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: bold;
+            box-sizing: border-box;
+        }
+
+        /* カードの裏側 (初期状態) */
+        .card-back {
+            background-color: #4db6ac; 
+            color: white;
+        }
+
+        /* カードの表側 (めくられた状態) */
+        .card-front {
+            background-color: white;
+            color: #00796b;
+            border: 2px solid #00796b;
+            transform: rotateY(180deg); 
+        }
+
+        /* カードがめくられた時の状態 */
+        .card.flipped {
+            transform: rotateY(180deg);
+            cursor: default;
+        }
+        
+        /* ペアが成立したカード */
+        .card.matched .card-back {
+            background-color: #e0e0e0; /* 薄い灰色にして無効化を表現 */
+            color: #b0b0b0;
+            cursor: default;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>カードめくりゲーム 🃏</h1>
+        <div id="message">下のボタンを押してゲームをスタート！</div>
+        <button id="start-button">ゲームスタート</button>
+        
+        <div id="card-grid">
+            </div>
+    </div>
+
+    <script>
+        /* ================================= */
+        /* JavaScriptセクション: ゲームのロジック */
+        /* ================================= */
+
+        const cardGrid = document.getElementById('card-grid');
+        const startButton = document.getElementById('start-button');
+        const message = document.getElementById('message');
+
+        // 使う絵柄のペア（8種類 x 2枚 = 16枚のゲーム）
+        const cardIcons = ['🍎', '🍌', '🍇', '🍊', '🍋', '🥝', '🍓', '🍒'];
+        let gameCards = [];        // 実際のゲームで使うカードの配列（要素は絵柄）
+        let flippedCards = [];     // めくられているカード要素（DOM要素）を一時的に保持
+        let lockBoard = false;     // 2枚めくっている間はクリックを無効化するフラグ
+
+        // フィッシャー・イェーツ・シャッフルアルゴリズム
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                // 要素を入れ替える
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // カードを生成し、シャッフルして、画面に配置する
+        function initializeGame() {
+            // 初期化処理
+            gameCards = [...cardIcons, ...cardIcons]; // 16枚作成
+            shuffle(gameCards); 
+            cardGrid.innerHTML = ''; // グリッドをクリア
+
+            gameCards.forEach((icon, index) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.icon = icon; // カードの絵柄をデータ属性として保持
+                
+                // カードの表と裏を作成し、HTMLに挿入
+                card.innerHTML = `
+                    <div class="card-face card-front">${icon}</div>
+                    <div class="card-face card-back">?</div>
+                `;
+                
+                // クリックイベントリスナーを追加
+                card.addEventListener('click', flipCard);
+                
+                cardGrid.appendChild(card);
+            });
+
+            flippedCards = [];
+            lockBoard = false;
+            message.textContent = 'カードをめくってください';
+        }
+
+        // カードがクリックされた時の処理
+        function flipCard() {
+            // 🚫 クリック無効条件: ロック中、すでにペア成立、すでにめくられているカード
+            if (lockBoard || this.classList.contains('matched') || flippedCards.includes(this)) {
+                return;
+            }
+
+            this.classList.add('flipped'); // カードをめくるアニメーションを適用
+            flippedCards.push(this);
+
+            if (flippedCards.length === 2) {
+                lockBoard = true; // 2枚めくったらボードをロック
+                checkForMatch();
+            }
+        }
+
+        // 2枚のカードが一致しているか判定する
+        function checkForMatch() {
+            const [card1, card2] = flippedCards;
+            // dataset.iconを比較
+            const isMatch = card1.dataset.icon === card2.dataset.icon;
+
+            if (isMatch) {
+                // ✅ 一致した場合
+                message.textContent = 'ペアを発見！🎉';
+                // matchedクラスを追加し、クリックを無効化
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                resetBoard();
+            } else {
+                // ❌ 不一致の場合
+                message.textContent = '残念、違いました...';
+                // 1秒後に裏側に戻す
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    resetBoard();
+                }, 1000); 
+            }
+        }
+
+        // ボードの状態をリセットする
+        function resetBoard() {
+            flippedCards = [];
+            lockBoard = false;
+            
+            // ゲームクリア判定
+            if (document.querySelectorAll('.card:not(.matched)').length === 0) {
+                message.textContent = 'ゲームクリア！おめでとうございます！🎊';
+                startButton.textContent = 'もう一度プレイ';
+                startButton.disabled = false;
+            } else if (!lockBoard) {
+                 // ロックが解除されたらメッセージを初期化
+                message.textContent = '次のカードをめくってください';
+            }
+        }
+
+        // スタートボタンのイベントリスナー
+        startButton.addEventListener('click', () => {
+            startButton.disabled = true;
+            initializeGame();
+        });
+
+        // ページロード時の初期設定
+        startButton.disabled = false;
+
+    </script>
+</body>
+</html>
