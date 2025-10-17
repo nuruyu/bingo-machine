@@ -67,11 +67,13 @@
 
         /* タイトル */
         h1 {
-            font-size: 2.5em; /* 💡 モバイル向けサイズ */
+            font-size: 2.5em; /* 💡 初期サイズ。JSで調整される */
             text-shadow: 0 0 10px rgba(255, 222, 89, 0.7);
             margin-bottom: 40px;
             position: relative; 
             z-index: 20;
+
+            /* 💡 修正点: 改行制御のCSSは削除し、JSでフォントサイズを調整する */
         }
         
         h3 {
@@ -179,6 +181,33 @@
         
         #draw-button:disabled { background-color: #555; box-shadow: none; cursor: not-allowed; }
         
+        /* 💡 修正: リセットボタンのスタイル (中央配置に) */
+        #reset-button {
+            padding: 15px 40px; 
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #34495e; /* 暗めの青灰色 */
+            color: white;
+            border: none;
+            border-radius: 10px;
+            
+            /* 💡 中央配置とマージン調整 */
+            margin-top: 20px;
+            margin-bottom: 50px;
+            margin-left: auto; 
+            margin-right: auto; 
+            display: block; 
+            
+            box-shadow: 0 5px #2c3e50; 
+            transition: all 0.1s;
+            position: relative;
+            z-index: 20;
+        }
+
+        #reset-button:hover { background-color: #2c3e50; }
+        #reset-button:active { transform: translateY(3px); box-shadow: 0 2px #2c3e50; }
+
         /* 履歴エリア */
         #history {
             margin-top: 50px;
@@ -284,6 +313,8 @@
         </div>
     </div>
     
+    <button id="reset-button" onclick="resetConfirmation()">リセット</button>
+
     <script>
         /* ==================================== */
         /* JavaScriptセクション */
@@ -305,23 +336,31 @@
         let remainingCountElement;
         let rouletteAudio;
         let winAudio;
+        
+        // 💡 追加: h1要素の参照
+        const h1Element = document.querySelector('h1');
+
 
         /**
          * 状態をリセットし、抽選プールを初期化する
          */
         function resetMachine() {
+            // 抽選リストを初期化
             availableNumbers = Array.from({ length: totalNumbers }, (_, i) => i + 1);
             drawnNumbers = [];
             
+            // 表示をリセット
             currentNumberElement.textContent = '--';
             currentNumberElement.classList.remove('confirmed', 'rolling');
             
+            // ボタンをリセット
             drawButton.textContent = 'GO！';
             drawButton.classList.remove('stop-active');
             drawButton.disabled = false;
             
             isDrawing = false;
 
+            // 音声をリセット
             if (rouletteAudio) {
                 rouletteAudio.pause();
                 rouletteAudio.currentTime = 0;
@@ -331,8 +370,25 @@
                 winAudio.currentTime = 0;
             }
 
+            // 履歴とタイトルを更新
             updateHistory();
+            adjustTitleSize(); // タイトルサイズを初期サイズに戻す
         }
+        
+        /**
+         * 💡 追加: リセット前にユーザーに確認を求める
+         */
+        function resetConfirmation() {
+            if (isDrawing) {
+                alert('抽選中はリセットできません。STOPボタンを押してから操作してください。');
+                return;
+            }
+
+            if (confirm('抽選履歴をすべてクリアして、最初からやり直しますか？')) {
+                resetMachine();
+            }
+        }
+
 
         /**
          * 抽選を確定させ、結果を表示する
@@ -444,6 +500,45 @@
             remainingCountElement.textContent = availableNumbers.length;
         }
 
+        /**
+         * タイトルが画面幅を超えないようにフォントサイズを調整する
+         */
+        function adjustTitleSize() {
+            // PC表示の場合は調整をスキップ（CSSでサイズが固定されるため）
+            if (window.innerWidth >= 768) {
+                h1Element.style.fontSize = ''; // CSS設定に戻す
+                return;
+            }
+            
+            // 初期フォントサイズ (2.5em) にリセットしてから計算
+            h1Element.style.fontSize = '2.5em'; 
+            
+            // 画面幅とh1の幅を取得
+            const viewportWidth = window.innerWidth;
+
+            // 許容される最大幅 (bodyの左右padding 10px + 10pxを引く)
+            const maxContentWidth = viewportWidth - 20; 
+            
+            // 調整の閾値 (例: 画面幅の95%まで許容)
+            const threshold = 0.95; 
+
+            let currentEmSize = 2.5; 
+            const maxAttempts = 5; 
+
+            // h1の幅が許容範囲を超えているか、最大試行回数に達していないか
+            for (let attempts = 0; h1Element.scrollWidth > maxContentWidth * threshold && attempts < maxAttempts; attempts++) {
+                // フォントサイズを0.1emずつ小さくする
+                currentEmSize -= 0.1;
+                h1Element.style.fontSize = `${currentEmSize}em`;
+                
+                // 最小フォントサイズ (1.8em)を下回ったら終了
+                if (currentEmSize < 1.8) {
+                    h1Element.style.fontSize = '1.8em';
+                    break;
+                }
+            }
+        }
+
 
         /**
          * アプリ全体の初期化処理
@@ -466,6 +561,12 @@
                     manualStop(); // STOP状態 -> 抽選停止
                 }
             });
+            
+            // 初回起動時にサイズを調整
+            adjustTitleSize();
+
+            // 画面サイズが変わった時にもサイズを調整
+            window.addEventListener('resize', adjustTitleSize);
         }
 
         document.addEventListener('DOMContentLoaded', initializeApp);
