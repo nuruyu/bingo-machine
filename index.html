@@ -3,35 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <title>葵のビンゴ抽選マシン！！</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#1f083d">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         /* ==================================== */
         /* CSSセクション: 装飾とサイズ */
         /* ==================================== */
         
-        /* ========== 【修正箇所】 ========== */
-        /* 1. HTML要素にも背景色と高さを設定して、画面全体を確実にカバー */
+        /* 1. HTML要素の背景設定 (白い部分を消すための修正) */
         html {
             height: 100%;
-            background-color: #1f083d; /* bodyの背景に近い色を設定 */
+            background-color: #1f083d; 
         }
-        /* ============================ */
-        
+
         /* 画面全体 (body) の装飾 */
         body {
             font-family: 'Arial Black', sans-serif;
             text-align: center;
             /* 派手なグラデーション背景 */
             background: linear-gradient(135deg, #1f083d 0%, #000000 100%);
-            color: #ffde59;
+            color: #ffde59; /* 文字色をゴールド系に */
             padding-top: 50px;
             
             /* 画面いっぱいに広げる設定を修正 (dvhを追加) */
             min-height: 100vh;
             min-height: 100dvh; /* スマホの動的なビューポート高に対応 */
-            
+
             margin: 0;
             position: relative; 
-            overflow: hidden;
+            overflow: hidden; /* 左右装飾が画面外に出るのを防ぐ */
         }
 
         /* 左右の豪華な装飾 */
@@ -40,23 +44,26 @@
             content: '';
             position: fixed;
             top: 0;
-            width: 150px;
+            width: 150px; /* 装飾の幅 */
             height: 100%;
-            background: linear-gradient(to bottom, #ffd700, #daa520, #ffd700);
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.7), 0 0 60px rgba(255, 215, 0, 0.5);
-            z-index: -1;
-            animation: shine 3s infinite alternate;
+            background: linear-gradient(to bottom, #ffd700, #daa520, #ffd700); /* 黄金のグラデーション */
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.7), 0 0 60px rgba(255, 215, 0, 0.5); /* 輝くシャドウ */
+            
+            /* 💡 修正点: z-indexを高く設定して、装飾が消えないようにする */
+            z-index: 10; 
+            
+            animation: shine 3s infinite alternate; /* 光が流れるアニメーション */
         }
 
         body::before {
-            left: -50px;
-            transform: skewX(-15deg);
+            left: -50px; /* 少し画面外から始まるように調整 */
+            transform: skewX(-15deg); /* 斜めに傾ける */
             border-right: 5px solid #ffde59;
         }
 
         body::after {
-            right: -50px;
-            transform: skewX(15deg);
+            right: -50px; /* 少し画面外から始まるように調整 */
+            transform: skewX(15deg); /* 斜めに傾ける */
             border-left: 5px solid #ffde59;
         }
 
@@ -76,8 +83,11 @@
         /* タイトル */
         h1 {
             font-size: 3em;
-            text-shadow: 0 0 10px rgba(255, 222, 89, 0.7);
+            text-shadow: 0 0 10px rgba(255, 222, 89, 0.7); /* ゴールドの輝き */
             margin-bottom: 40px;
+            /* 💡 追加: 左右の装飾より手前に来るように */
+            position: relative; 
+            z-index: 20;
         }
         
         h3 {
@@ -99,16 +109,20 @@
             align-items: center;
             width: 320px; 
             height: 320px; 
-            border-radius: 50%;
+            border-radius: 50%; /* 正円に */
             box-shadow: 0 0 40px rgba(255, 222, 89, 0.8), 0 10px 30px rgba(0, 0, 0, 0.5);
             transition: all 0.2s ease-out;
+            /* 💡 追加: 左右の装飾より手前に来るように */
+            position: relative;
+            z-index: 20;
         }
 
         /* 抽選中のアニメーション */
         .rolling {
-            background: linear-gradient(to right, #e74c3c, #f39c12);
+            background: linear-gradient(to right, #e74c3c, #f39c12); /* 虹色風グラデ */
             border-color: #f39c12;
             color: white;
+            /* 点滅と色の回転アニメーション */
             animation: pulse 0.5s infinite alternate, 
                        spin-color 2s infinite linear,
                        roll-text 0.1s infinite; 
@@ -116,14 +130,14 @@
         
         /* 確定時のアニメーション */
         .confirmed {
-            background-color: #5cb85c;
+            background-color: #5cb85c; /* 確定色は緑 */
             color: white;
             border-color: #4cae4c;
             animation: bounceIn 0.5s ease-out;
             box-shadow: 0 0 40px #5cb85c, 0 0 20px #fff; 
         }
 
-        /* アニメーションのキーフレーム（省略） */
+        /* アニメーションのキーフレーム */
         @keyframes pulse {
             from { transform: scale(1); opacity: 0.8; }
             to { transform: scale(1.05); opacity: 1; }
@@ -162,6 +176,9 @@
             margin-bottom: 50px;
             box-shadow: 0 8px #c0392b; 
             transition: all 0.1s;
+            /* 💡 追加: 左右の装飾より手前に来るように */
+            position: relative;
+            z-index: 20;
         }
 
         /* GO!ボタンのホバー/アクティブ */
@@ -196,7 +213,7 @@
             cursor: not-allowed;
         }
         
-        /* 履歴エリア（省略） */
+        /* 履歴エリア */
         #history {
             margin-top: 50px;
             max-width: 800px;
@@ -206,6 +223,9 @@
             border: 2px solid #ffde59; 
             background-color: rgba(0, 0, 0, 0.5); 
             border-radius: 10px;
+            /* 💡 追加: 左右の装飾より手前に来るように */
+            position: relative;
+            z-index: 20;
         }
         
         #history-list {
@@ -216,10 +236,22 @@
             color: #eee;
         }
 
-        /* クレジット表記のスタイル（削除されていますが残します） */
-        /* .credit { ... } */
-        /* .credit a { ... } */
-        /* .credit a:hover { ... } */
+        /* クレジット表記のスタイル */
+        .credit {
+            margin-top: 20px;
+            font-size: 0.8em;
+            color: #999;
+            /* 💡 追加: 左右の装飾より手前に来るように */
+            position: relative;
+            z-index: 20;
+        }
+        .credit a {
+            color: #ffde59;
+            text-decoration: none;
+        }
+        .credit a:hover {
+            text-decoration: underline;
+        }
 
     </style>
 </head>
@@ -244,7 +276,7 @@
     
     <script>
         /* ==================================== */
-        /* JavaScriptセクションは変更なし */
+        /* JavaScriptセクション */
         /* ==================================== */
         
         const totalNumbers = 75;
