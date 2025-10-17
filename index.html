@@ -24,51 +24,35 @@
         body {
             font-family: 'Arial Black', sans-serif;
             text-align: center;
+            /* 派手なグラデーション背景 */
             background: linear-gradient(135deg, #1f083d 0%, #000000 100%);
             color: #ffde59;
             padding-top: 50px;
             
-            /* 画面いっぱいに広げる設定を修正 (dvhを追加) */
             min-height: 100vh;
             min-height: 100dvh; 
 
-            margin: 0;
+            /* 💡 モバイル用: コンテンツの最大幅を設定し、中央に配置 */
+            max-width: 800px;
+            margin: 0 auto; 
+            
             position: relative; 
-            /* 💡 修正: 横方向のはみ出しを隠すことで、縮尺のズレを防ぐ */
-            overflow-x: hidden;
+            overflow-x: hidden; /* 横スクロールバーを防ぐ */
             overflow-y: scroll;
+            
+            /* 画面の左右端の余白を少し確保 */
+            padding-left: 10px;
+            padding-right: 10px;
         }
 
-        /* 左右の豪華な装飾 */
+        /* 💡 修正: 左右の豪華な装飾 (モバイルでは非表示がデフォルト) */
         body::before,
         body::after {
             content: '';
-            position: fixed;
-            top: 0;
-            width: 150px;
-            height: 100%;
-            background: linear-gradient(to bottom, #ffd700, #daa520, #ffd700);
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.7), 0 0 60px rgba(255, 215, 0, 0.5);
-            
-            /* 💡 修正: z-indexを高く設定し、背景に隠れないようにする */
-            z-index: 10; 
-            
-            animation: shine 3s infinite alternate;
+            display: none; /* 初期設定で非表示にする */
         }
 
-        body::before {
-            left: -50px;
-            transform: skewX(-15deg);
-            border-right: 5px solid #ffde59;
-        }
-
-        body::after {
-            right: -50px;
-            transform: skewX(15deg);
-            border-left: 5px solid #ffde59;
-        }
-
-        /* 装飾内の輝きアニメーション */
+        /* 装飾内の輝きアニメーション (PC用として残す) */
         @keyframes shine {
             0% {
                 background-position: 0% 0%;
@@ -83,13 +67,11 @@
 
         /* タイトル */
         h1 {
-            font-size: 3em;
+            font-size: 2.5em; /* 💡 モバイル向けサイズ */
             text-shadow: 0 0 10px rgba(255, 222, 89, 0.7);
             margin-bottom: 40px;
             position: relative; 
             z-index: 20;
-            /* 💡 修正: モバイル向けにフォントサイズを調整 */
-            font-size: 2.5em; 
         }
         
         h3 {
@@ -100,8 +82,7 @@
 
         /* 抽選番号の表示エリア */
         #current-number {
-            /* 💡 修正: サイズを縮小し、モバイル画面に収まるようにする */
-            font-size: 8em; /* 12emから8emへ縮小 */
+            font-size: 8em; /* 💡 モバイル向けサイズ */
             font-weight: 900;
             color: #333;
             margin: 40px auto;
@@ -110,8 +91,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 250px; /* 320pxから250pxへ縮小 */
-            height: 250px; /* 320pxから250pxへ縮小 */
+            width: 250px; /* 💡 モバイル向けサイズ */
+            height: 250px; /* 💡 モバイル向けサイズ */
             border-radius: 50%;
             box-shadow: 0 0 40px rgba(255, 222, 89, 0.8), 0 10px 30px rgba(0, 0, 0, 0.5);
             transition: all 0.2s ease-out;
@@ -119,7 +100,7 @@
             z-index: 20;
         }
 
-        /* 抽選中のアニメーション (省略) */
+        /* 抽選中のアニメーション */
         .rolling {
             background: linear-gradient(to right, #e74c3c, #f39c12);
             border-color: #f39c12;
@@ -129,7 +110,7 @@
                        roll-text 0.1s infinite; 
         }
         
-        /* 確定時のアニメーション (省略) */
+        /* 確定時のアニメーション */
         .confirmed {
             background-color: #5cb85c;
             color: white;
@@ -138,7 +119,7 @@
             box-shadow: 0 0 40px #5cb85c, 0 0 20px #fff; 
         }
 
-        /* アニメーションのキーフレーム (省略) */
+        /* アニメーションのキーフレーム */
         @keyframes pulse {
             from { transform: scale(1); opacity: 0.8; }
             to { transform: scale(1.05); opacity: 1; }
@@ -181,24 +162,24 @@
             z-index: 20;
         }
 
-        /* GO!ボタンのホバー/アクティブ (省略) */
+        /* GO!ボタンのホバー/アクティブ */
         #draw-button:hover:not(:disabled) { background-color: #c0392b; }
         #draw-button:active { transform: translateY(6px); box-shadow: 0 2px #c0392b; }
         
-        /* STOPボタンのデザイン (抽選中) (省略) */
+        /* STOPボタンのデザイン (抽選中) */
         #draw-button.stop-active {
             background-color: #2ecc71;
             box-shadow: 0 8px #27ae60;
             transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s;
         }
         
-        /* STOPボタンのホバー/アクティブ (省略) */
+        /* STOPボタンのホバー/アクティブ */
         #draw-button.stop-active:hover { background-color: #27ae60; }
         #draw-button.stop-active:active { transform: translateY(6px); box-shadow: 0 2px #27ae60; }
         
         #draw-button:disabled { background-color: #555; box-shadow: none; cursor: not-allowed; }
         
-        /* 履歴エリア (省略) */
+        /* 履歴エリア */
         #history {
             margin-top: 50px;
             max-width: 800px;
@@ -220,7 +201,7 @@
             color: #eee;
         }
 
-        /* クレジット表記のスタイル (省略) */
+        /* クレジット表記のスタイル */
         .credit {
             margin-top: 20px;
             font-size: 0.8em;
@@ -236,8 +217,16 @@
             text-decoration: underline;
         }
 
-        /* 💡 追加: 768px以上の画面（タブレットやPC）向けの大きなサイズを適用 */
+        /* 💡 768px以上の画面（タブレットやPC）向けの大きなサイズと装飾を適用 */
         @media (min-width: 768px) {
+            
+            /* 💡 修正点: PCではbodyの幅の制限を解除し、背景を画面いっぱいに広げる */
+            body {
+                max-width: none; /* 最大幅の制限を解除 */
+                padding-left: 0; /* 左右のpaddingも解除 */
+                padding-right: 0;
+            }
+
             h1 {
                 font-size: 3em; 
             }
@@ -246,6 +235,31 @@
                 font-size: 12em; 
                 width: 320px;
                 height: 320px;
+            }
+            
+            /* PC/タブレットでのみ装飾を有効化する */
+            body::before,
+            body::after {
+                display: block; /* 非表示を解除 */
+                position: fixed;
+                top: 0;
+                width: 150px; 
+                height: 100%;
+                background: linear-gradient(to bottom, #ffd700, #daa520, #ffd700);
+                box-shadow: 0 0 30px rgba(255, 215, 0, 0.7), 0 0 60px rgba(255, 215, 0, 0.5);
+                z-index: 10;
+            }
+
+            body::before {
+                left: -50px;
+                transform: skewX(-15deg);
+                border-right: 5px solid #ffde59;
+            }
+
+            body::after {
+                right: -50px;
+                transform: skewX(15deg);
+                border-left: 5px solid #ffde59;
             }
         }
 
