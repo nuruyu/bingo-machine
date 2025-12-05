@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>計算クイズゲーム (モード切替)</title>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        /* モード選択エリアのスタイル */
+        #mode-area {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff3cd; /* 薄い黄色 */
+        }
+
+        #mode-select {
+            padding: 8px;
+            font-size: 1em;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+
+        #start-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        #start-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* クイズエリアのスタイル (変更なし) */
+        #quiz-area {
+            margin-top: 20px;
+        }
+
+        #question {
+            font-size: 2em;
+            margin-bottom: 15px;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        #answer-input {
+            padding: 10px;
+            font-size: 1.2em;
+            width: 80%;
+            margin-bottom: 15px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        #submit-button, #restart-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        #submit-button:hover, #restart-button:hover {
+            background-color: #218838;
+        }
+
+        #message {
+            margin-top: 10px;
+            font-weight: bold;
+            min-height: 1.2em;
+        }
+
+        #result-area {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #e9ecef;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #score {
+            font-size: 1.5em;
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        #current-question-count {
+            margin-top: 20px;
+            font-size: 1em;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="game-title">🔢 計算クイズ</h1>
+        
+        <div id="mode-area">
+            <label for="mode-select">🚀 **モードを選択:**</label>
+            <select id="mode-select">
+                <option value="plus_2digit">➕ 2桁 + 2桁</option>
+                <option value="minus_2digit">➖ 2桁 - 2桁</option>
+                <option value="minus_2to1digit">➖ 2桁 - 1桁</option>
+            </select>
+            <button id="start-button">ゲームスタート</button>
+        </div>
+        
+        <div id="quiz-area" class="hidden">
+            <p id="question">問題を生成中です...</p>
+            <input type="number" id="answer-input" placeholder="答えを入力" min="0" required>
+            <button id="submit-button">回答</button>
+            <p id="message"></p>
+        </div>
+
+        <div id="result-area" class="hidden">
+            <h2>🎉 結果発表</h2>
+            <p id="score"></p>
+            <button id="restart-button">モード選択に戻る</button>
+        </div>
+
+        <p id="current-question-count" class="hidden">1 / 10 問目</p>
+    </div>
+
+    <script>
+        // 定数と変数の設定
+        const MAX_QUESTIONS = 10;
+        const MIN_2DIGIT = 10;    
+        const MAX_2DIGIT = 99;    
+        const MIN_1DIGIT = 1;     
+        const MAX_1DIGIT = 9;     
+
+        let currentQuestion = 0;
+        let score = 0;
+        let correctAnswer = 0;
+        let selectedMode = '';
+
+        // DOM要素の取得
+        const gameTitle = document.getElementById('game-title');
+        const modeArea = document.getElementById('mode-area');
+        const modeSelect = document.getElementById('mode-select');
+        const startButton = document.getElementById('start-button');
+        const quizArea = document.getElementById('quiz-area');
+        const resultArea = document.getElementById('result-area');
+        const questionElement = document.getElementById('question');
+        const answerInput = document.getElementById('answer-input');
+        const submitButton = document.getElementById('submit-button');
+        const messageElement = document.getElementById('message');
+        const scoreElement = document.getElementById('score');
+        const restartButton = document.getElementById('restart-button');
+        const countElement = document.getElementById('current-question-count');
+
+        // ランダムな数を生成する関数 (minを含む、maxを含む)
+        function generateRandomNumber(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // モードに基づいて問題の数と演算子を生成する関数
+        function generateQuestion(mode) {
+            let num1, num2, operator, titleText;
+
+            if (mode === 'plus_2digit') {
+                // ➕ 2桁 + 2桁
+                num1 = generateRandomNumber(MIN_2DIGIT, MAX_2DIGIT);
+                num2 = generateRandomNumber(MIN_2DIGIT, MAX_2DIGIT);
+                operator = '+';
+                titleText = '➕ 2桁 + 2桁 クイズ';
+            } else if (mode === 'minus_2digit') {
+                // ➖ 2桁 - 2桁 (答えがマイナスにならないように)
+                let numA = generateRandomNumber(MIN_2DIGIT, MAX_2DIGIT);
+                let numB = generateRandomNumber(MIN_2DIGIT, MAX_2DIGIT);
+                num1 = Math.max(numA, numB);
+                num2 = Math.min(numA, numB);
+                if (num1 === num2) num1++; // 答えが0にならないように
+                operator = '-';
+                titleText = '➖ 2桁 - 2桁 クイズ';
+            } else if (mode === 'minus_2to1digit') {
+                // ➖ 2桁 - 1桁 (答えがマイナスにならないように)
+                num1 = generateRandomNumber(MIN_2DIGIT, MAX_2DIGIT);
+                // num1より小さく、かつ1桁の範囲(1～9)でnum2を生成
+                const maxSubtrahend = Math.min(num1 - 1, MAX_1DIGIT);
+                num2 = generateRandomNumber(MIN_1DIGIT, maxSubtrahend);
+                operator = '-';
+                titleText = '➖ 2桁 - 1桁 クイズ';
+            }
+
+            // 正解を計算
+            if (operator === '+') {
+                correctAnswer = num1 + num2;
+            } else if (operator === '-') {
+                correctAnswer = num1 - num2;
+            }
+            
+            // 問題文とタイトルを設定
+            questionElement.textContent = `${num1} ${operator} ${num2} = ?`;
+            gameTitle.textContent = titleText;
+        }
+
+        // 新しい問題を設定する関数
+        function setNextQuestion() {
+            currentQuestion++;
+
+            if (currentQuestion > MAX_QUESTIONS) {
+                showResult();
+                return;
+            }
+
+            // カウント表示を更新
+            countElement.textContent = `${currentQuestion} / ${MAX_QUESTIONS} 問目`;
+
+            // 問題を生成
+            generateQuestion(selectedMode);
+
+            // 入力欄をクリア
+            answerInput.value = '';
+            messageElement.textContent = '';
+            answerInput.focus();
+        }
+
+        // 回答をチェックする関数
+        function checkAnswer() {
+            const userAnswer = parseInt(answerInput.value, 10);
+
+            if (isNaN(userAnswer)) {
+                messageElement.textContent = '⚠️ 数字を入力してください。';
+                messageElement.style.color = '#ffc107';
+                answerInput.focus();
+                return;
+            }
+
+            if (userAnswer === correctAnswer) {
+                score++;
+                messageElement.textContent = '⭕️ 正解です！';
+                messageElement.style.color = '#28a745';
+            } else {
+                messageElement.textContent = `❌ 不正解です。（正解: ${correctAnswer}）`;
+                messageElement.style.color = '#dc3545';
+            }
+
+            submitButton.disabled = true;
+            answerInput.disabled = true;
+
+            setTimeout(() => {
+                submitButton.disabled = false;
+                answerInput.disabled = false;
+                setNextQuestion();
+            }, 800);
+        }
+
+        // 結果を表示する関数
+        function showResult() {
+            quizArea.classList.add('hidden');
+            countElement.classList.add('hidden');
+            resultArea.classList.remove('hidden');
+            
+            scoreElement.textContent = `${MAX_QUESTIONS}問中、${score}問正解しました！`;
+            
+            if (score === MAX_QUESTIONS) {
+                scoreElement.textContent += ' 素晴らしい！全問正解です！💯';
+            } else if (score >= MAX_QUESTIONS * 0.7) {
+                scoreElement.textContent += ' よくできました！👏';
+            } else {
+                scoreElement.textContent += ' もう一度挑戦してみましょう！💪';
+            }
+        }
+
+        // ゲームを初期化してモード選択画面に戻る
+        function resetToModeSelection() {
+            gameTitle.textContent = '🔢 計算クイズ';
+            modeArea.classList.remove('hidden');
+            quizArea.classList.add('hidden');
+            resultArea.classList.add('hidden');
+            countElement.classList.add('hidden');
+            messageElement.textContent = '';
+            // 変数をリセット
+            currentQuestion = 0;
+            score = 0;
+        }
+
+        // ゲームを開始する関数
+        function startGame() {
+            selectedMode = modeSelect.value;
+
+            // モード選択画面を非表示にし、クイズ画面を表示
+            modeArea.classList.add('hidden');
+            quizArea.classList.remove('hidden');
+            countElement.classList.remove('hidden');
+            
+            // ゲーム開始
+            currentQuestion = 0;
+            score = 0;
+            setNextQuestion();
+        }
+
+        // イベントリスナーの設定
+        startButton.addEventListener('click', startGame);
+        submitButton.addEventListener('click', checkAnswer);
+        restartButton.addEventListener('click', resetToModeSelection);
+
+        // Enterキーでの回答送信
+        answerInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !submitButton.disabled) {
+                checkAnswer();
+            }
+        });
+
+        // ページロード時の初期設定
+        window.onload = resetToModeSelection;
+    </script>
+</body>
+</html>
