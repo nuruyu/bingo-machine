@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2桁の引き算クイズ</title>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        #quiz-area {
+            margin-top: 20px;
+        }
+
+        #question {
+            font-size: 2em;
+            margin-bottom: 15px;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        #answer-input {
+            padding: 10px;
+            font-size: 1.2em;
+            width: 80%;
+            margin-bottom: 15px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        #submit-button, #restart-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        #submit-button:hover, #restart-button:hover {
+            background-color: #218838;
+        }
+
+        #message {
+            margin-top: 10px;
+            font-weight: bold;
+            min-height: 1.2em; /* メッセージ表示領域を確保 */
+        }
+
+        #result-area {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #e9ecef;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #score {
+            font-size: 1.5em;
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        #current-question-count {
+            margin-top: 20px;
+            font-size: 1em;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>➖ 2桁の引き算クイズ</h1>
+        <div id="quiz-area">
+            <p id="question">問題を生成中です...</p>
+            <input type="number" id="answer-input" placeholder="答えを入力" min="0" required>
+            <button id="submit-button">回答</button>
+            <p id="message"></p>
+        </div>
+
+        <div id="result-area" class="hidden">
+            <h2>🎉 結果発表</h2>
+            <p id="score"></p>
+            <button id="restart-button">もう一度遊ぶ</button>
+        </div>
+
+        <p id="current-question-count">1 / 10 問目</p>
+    </div>
+
+    <script>
+        // 定数と変数の設定
+        const MAX_QUESTIONS = 10; // 出題数
+        const MIN_NUMBER = 10;    // 2桁の最小値
+        const MAX_NUMBER = 99;    // 2桁の最大値
+
+        let currentQuestion = 0; // 現在の問題数 (0からスタート)
+        let score = 0;           // 正解数
+        let correctAnswer = 0;   // 現在の問題の正解
+
+        // DOM要素の取得
+        const questionElement = document.getElementById('question');
+        const answerInput = document.getElementById('answer-input');
+        const submitButton = document.getElementById('submit-button');
+        const messageElement = document.getElementById('message');
+        const quizArea = document.getElementById('quiz-area');
+        const resultArea = document.getElementById('result-area');
+        const scoreElement = document.getElementById('score');
+        const restartButton = document.getElementById('restart-button');
+        const countElement = document.getElementById('current-question-count');
+
+        // ランダムな2桁の数を生成する関数
+        function generateRandomNumber() {
+            return Math.floor(Math.random() * (MAX_NUMBER - MIN_NUMBER + 1)) + MIN_NUMBER;
+        }
+
+        // 新しい問題を設定する関数
+        function setNextQuestion() {
+            currentQuestion++;
+
+            if (currentQuestion > MAX_QUESTIONS) {
+                // 全問終了
+                showResult();
+                return;
+            }
+
+            // カウント表示を更新
+            countElement.textContent = `${currentQuestion} / ${MAX_QUESTIONS} 問目`;
+
+            // 2つの2桁の数を生成
+            let numA = generateRandomNumber();
+            let numB = generateRandomNumber();
+            
+            // 引き算でマイナスにならないように、必ず (大きい数 - 小さい数) にする
+            const num1 = Math.max(numA, numB);
+            const num2 = Math.min(numA, numB);
+            
+            // もし同じ数で答えが0になる場合は、num1を一つ増やす (任意だが難易度を上げるため)
+            if (num1 === num2) {
+                num1 = Math.min(num1 + 1, MAX_NUMBER); // 99を超えないように調整
+            }
+
+            // 正解を計算
+            correctAnswer = num1 - num2;
+
+            // 問題文を設定
+            questionElement.textContent = `${num1} - ${num2} = ?`;
+
+            // 入力欄をクリア
+            answerInput.value = '';
+            messageElement.textContent = '';
+            answerInput.focus(); // 入力欄にフォーカス
+        }
+
+        // 回答をチェックする関数
+        function checkAnswer() {
+            const userAnswer = parseInt(answerInput.value, 10);
+
+            // 入力が空、または数字でない場合は警告
+            if (isNaN(userAnswer)) {
+                messageElement.textContent = '⚠️ 数字を入力してください。';
+                messageElement.style.color = '#ffc107';
+                answerInput.focus();
+                return;
+            }
+
+            // 正誤判定
+            if (userAnswer === correctAnswer) {
+                score++;
+                messageElement.textContent = '⭕️ 正解です！';
+                messageElement.style.color = '#28a745';
+            } else {
+                messageElement.textContent = `❌ 不正解です。（正解: ${correctAnswer}）`;
+                messageElement.style.color = '#dc3545';
+            }
+
+            // 0.8秒後に次の問題へ
+            submitButton.disabled = true; // ボタンを一時的に無効化
+            answerInput.disabled = true;  // 入力欄を一時的に無効化
+
+            setTimeout(() => {
+                submitButton.disabled = false;
+                answerInput.disabled = false;
+                setNextQuestion();
+            }, 800);
+        }
+
+        // 結果を表示する関数
+        function showResult() {
+            quizArea.classList.add('hidden');
+            resultArea.classList.remove('hidden');
+            countElement.classList.add('hidden');
+            
+            scoreElement.textContent = `${MAX_QUESTIONS}問中、${score}問正解しました！`;
+            
+            // スコアに応じてメッセージを調整
+            if (score === MAX_QUESTIONS) {
+                scoreElement.textContent += ' 素晴らしい！全問正解です！💯';
+            } else if (score >= MAX_QUESTIONS * 0.7) {
+                scoreElement.textContent += ' よくできました！👏';
+            } else {
+                scoreElement.textContent += ' もう一度挑戦してみましょう！💪';
+            }
+        }
+
+        // ゲームを初期状態に戻す関数
+        function initializeGame() {
+            currentQuestion = 0;
+            score = 0;
+            
+            quizArea.classList.remove('hidden');
+            resultArea.classList.add('hidden');
+            countElement.classList.remove('hidden');
+            messageElement.textContent = '';
+
+            setNextQuestion();
+        }
+
+        // イベントリスナーの設定
+        submitButton.addEventListener('click', checkAnswer);
+        restartButton.addEventListener('click', initializeGame);
+
+        // Enterキーでの回答送信を可能にする
+        answerInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // ゲーム開始
+        window.onload = initializeGame;
+    </script>
+</body>
+</html>
