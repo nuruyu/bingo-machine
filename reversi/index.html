@@ -506,6 +506,18 @@
             }
         }
 
+        // PWA: Service Workerの登録
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+              .then((registration) => {
+                console.log('Service Worker registration successful with scope: ', registration.scope);
+              }, (err) => {
+                console.log('Service Worker registration failed: ', err);
+              });
+          });
+        }
+
         resetButton.addEventListener('click', initializeGame);
         guideControls.addEventListener('change', handleGuideToggle);
         undoButton.addEventListener('click', undoMove); // 💡【追加】Undoイベントリスナー
