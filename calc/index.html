@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-　　<link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>計算クイズゲーム (モード切替)</title>
 
+    <link rel="manifest" href="manifest.json"> 
+    
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -38,7 +39,7 @@
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            background-color: #fff3cd; /* 薄い黄色 */
+            background-color: #fff3cd; 
         }
 
         #mode-select {
@@ -67,7 +68,7 @@
             background-color: #0056b3;
         }
 
-        /* クイズエリアのスタイル (変更なし) */
+        /* クイズエリアのスタイル */
         #quiz-area {
             margin-top: 20px;
         }
@@ -216,14 +217,17 @@
                 let numB = generateRandomNumber(MIN_2DIGIT, MAX_2DIGIT);
                 num1 = Math.max(numA, numB);
                 num2 = Math.min(numA, numB);
-                if (num1 === num2) num1++; // 答えが0にならないように
+                if (num1 === num2) num1 = Math.min(num1 + 1, MAX_2DIGIT);
                 operator = '-';
                 titleText = '➖ 2桁 - 2桁 クイズ';
             } else if (mode === 'minus_2to1digit') {
                 // ➖ 2桁 - 1桁 (答えがマイナスにならないように)
                 num1 = generateRandomNumber(MIN_2DIGIT, MAX_2DIGIT);
-                // num1より小さく、かつ1桁の範囲(1～9)でnum2を生成
                 const maxSubtrahend = Math.min(num1 - 1, MAX_1DIGIT);
+                // maxSubtrahendが1未満になることはないが、念のためチェック
+                if (maxSubtrahend < MIN_1DIGIT) { 
+                    num1 = generateRandomNumber(MIN_2DIGIT, MAX_2DIGIT);
+                }
                 num2 = generateRandomNumber(MIN_1DIGIT, maxSubtrahend);
                 operator = '-';
                 titleText = '➖ 2桁 - 1桁 クイズ';
@@ -317,7 +321,6 @@
             resultArea.classList.add('hidden');
             countElement.classList.add('hidden');
             messageElement.textContent = '';
-            // 変数をリセット
             currentQuestion = 0;
             score = 0;
         }
@@ -325,16 +328,24 @@
         // ゲームを開始する関数
         function startGame() {
             selectedMode = modeSelect.value;
-
-            // モード選択画面を非表示にし、クイズ画面を表示
             modeArea.classList.add('hidden');
             quizArea.classList.remove('hidden');
             countElement.classList.remove('hidden');
-            
-            // ゲーム開始
             currentQuestion = 0;
             score = 0;
             setNextQuestion();
+        }
+
+        // PWA: Service Workerの登録
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+              .then((registration) => {
+                console.log('Service Worker registration successful with scope: ', registration.scope);
+              }, (err) => {
+                console.log('Service Worker registration failed: ', err);
+              });
+          });
         }
 
         // イベントリスナーの設定

@@ -1,19 +1,20 @@
 {
-  "name": "葵の計算クイズゲーム (モード切替)！！",
-  "short_name": "葵の計算クイズゲーム (モード切替)!!"
-  "description": "葵の計算クイズゲーム (モード切替)！！",
-  "start_url": "./index.html", 
+  "name": "計算クイズゲーム",
+  "short_name": "計算クイズ",
+  "description": "モード切替可能な足し算・引き算クイズゲーム",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#1f083d",
-  "theme_color": "#ffde59",
+  "orientation": "portrait",
+  "background_color": "#f4f7f6",
+  "theme_color": "#007bff",
   "icons": [
     {
-      "src": "bingo.png",
+      "src": "calc.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "bingo.png",
+      "src": "calc.png",
       "sizes": "512x512",
       "type": "image/png"
     }
