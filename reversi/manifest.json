@@ -4,16 +4,17 @@
   "description": "葵のオセロゲーム",
   "start_url": "./index.html", 
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#1f083d",
   "theme_color": "#ffde59",
   "icons": [
     {
-      "src": "bingo.png",
+      "src": "オセロアイコン1.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "bingo.png",
+      "src": "オセロアイコン1.png",
       "sizes": "512x512",
       "type": "image/png"
     }
