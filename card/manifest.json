@@ -1,6 +1,6 @@
 {
   "name": "葵のカードめくり！！",
-  "short_name": "葵のカードめくり"
+  "short_name": "葵のカードめくり",
   "description": "葵のカードめくり！！",
   "start_url": "./index.html", 
   "display": "standalone",
