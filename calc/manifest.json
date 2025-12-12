@@ -1,7 +1,7 @@
 {
-  "name": "葵の計算ゲーム！！",
-  "short_name": "葵の計算ゲーム!!"
-  "description": "葵の計算ゲーム！！",
+  "name": "葵の計算クイズゲーム (モード切替)！！",
+  "short_name": "葵の計算クイズゲーム (モード切替)!!"
+  "description": "葵の計算クイズゲーム (モード切替)！！",
   "start_url": "./index.html", 
   "display": "standalone",
   "background_color": "#1f083d",
