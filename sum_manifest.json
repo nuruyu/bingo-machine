@@ -1,0 +1,17 @@
+{
+  "name": "計算クイズゲーム",
+  "short_name": "計算クイズ",
+  "description": "モード切替可能な計算クイズゲーム",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007bff",
+  "icons": [
+    // アプリのアイコン画像を設定
+    {
+      "src": "/images/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
