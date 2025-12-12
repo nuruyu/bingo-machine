@@ -1,7 +1,7 @@
 {
-  "name": "葵のオセロゲーム",
-  "short_name": "葵のオセロゲーム",
-  "description": "葵のオセロゲーム",
+  "name": "葵の計算ゲーム！！",
+  "short_name": "葵の計算ゲーム!!"
+  "description": "葵の計算ゲーム！！",
   "start_url": "./index.html", 
   "display": "standalone",
   "background_color": "#1f083d",
