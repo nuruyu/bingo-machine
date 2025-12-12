@@ -1,0 +1,21 @@
+{
+  "name": "葵のビンゴ抽選マシン！！",
+  "short_name": "ビンゴマシン",
+  "description": "葵のビンゴ抽選マシン！！",
+  "start_url": "./index.html", 
+  "display": "standalone",
+  "background_color": "#1f083d",
+  "theme_color": "#ffde59",
+  "icons": [
+    {
+      "src": "bingo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "bingo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
