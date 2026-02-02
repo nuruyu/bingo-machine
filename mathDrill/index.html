@@ -4,79 +4,80 @@
     <meta charset="UTF-8">
     <title>Aoi's Math Drill</title>
     <style>
+        /* 印刷設定: URLや日付（ヘッダー・フッター）を非表示にする魔法のコード */
         @page {
             size: A4 landscape;
-            margin: 5mm; /* 余白をさらに絞って安全圏を確保 */
+            margin: 10mm; /* ブラウザの自動ヘッダーを押し出すための余白 */
         }
+        @media print {
+            /* URLなどの標準テキストを消す設定 */
+            @page { margin: 10mm; }
+            body { margin: 0; }
+            .no-print { display: none; }
+            body { -webkit-print-color-adjust: exact; }
+        }
+
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
-            padding: 5mm;
+            padding: 0;
             color: #222;
-            line-height: 1.2;
+        }
+        .content-wrapper {
+            padding: 5mm;
         }
         .header {
             text-align: center;
             border-bottom: 3px solid #a51c30;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         .header h1 {
-            margin: 2px 0;
-            font-size: 24px; /* 少し小さく */
+            margin: 0;
+            font-size: 26px;
         }
         .info-section {
             display: flex;
             justify-content: flex-end;
             gap: 25px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-size: 16px;
             font-weight: bold;
         }
-        /* 24問を3列×8行 */
         .container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             column-gap: 15px;
-            row-gap: 4px; /* 行間を詰めて下切れを防止 */
+            row-gap: 5px;
         }
         .problem {
-            font-size: 34px; /* 42pxから34pxへ。視認性を保ちつつ安全なサイズ */
+            font-size: 34px;
             font-weight: bold;
             display: flex;
             align-items: center;
-            justify-content: flex-start;
-            padding: 2px 0;
-            border-bottom: 1px solid #f0f0f0; /* ガイドライン */
+            padding: 5px 0;
+            border-bottom: 1px solid #f0f0f0;
         }
         .index {
             font-size: 16px;
             color: #555;
-            width: 40px; 
-            margin-right: 2px;
+            width: 40px;
             text-align: left;
         }
         .num {
             min-width: 45px;
             text-align: right;
         }
-        .op {
-            margin: 0 5px;
-        }
+        .op { margin: 0 5px; }
         .answer-box {
             width: 85px;
-            height: 48px; /* 高さを少し抑えました */
+            height: 48px;
             border: 2px solid #000;
             margin-left: 10px;
             background: #fff;
         }
-        @media print {
-            .no-print { display: none; }
-            body { -webkit-print-color-adjust: exact; }
-            .problem { border-bottom: 1px solid #eee; }
-        }
         .no-print {
             background: #eee;
-            padding: 10px;
+            padding: 15px;
             text-align: center;
             border-bottom: 1px solid #ddd;
         }
@@ -99,19 +100,21 @@
 <div class="no-print">
     <button class="btn-generate" onclick="generateProblems()">問題を更新</button>
     <button class="btn-print" onclick="window.print()">このページを印刷</button>
-    <p style="margin-top: 5px; font-size: 13px;">※「方向：横」を選択。まだ切れる場合は、印刷設定の「倍率」を95%等に下げてください。</p>
+    <p style="margin-top: 10px;">URLが消えない場合は、印刷設定の「オプション」で「ヘッダーとフッター」のチェックを外してください。</p>
 </div>
 
-<div class="header">
-    <h1>Aoi’s Math Drill: Master of Addition</h1>
-</div>
+<div class="content-wrapper">
+    <div class="header">
+        <h1>Aoi’s Math Drill: Master of Addition</h1>
+    </div>
 
-<div class="info-section">
-    <div>Date: ____ / ____ / ____</div>
-    <div>Score: ________ / 24</div>
-</div>
+    <div class="info-section">
+        <div>Date: ____ / ____ / ____</div>
+        <div>Score: ________ / 24</div>
+    </div>
 
-<div id="quiz-container" class="container"></div>
+    <div id="quiz-container" class="container"></div>
+</div>
 
 <script>
     function generateProblems() {
@@ -120,7 +123,6 @@
         for (let i = 1; i <= 24; i++) {
             const n1 = Math.floor(Math.random() * 89) + 10;
             const n2 = Math.floor(Math.random() * 89) + 10;
-            
             const div = document.createElement('div');
             div.className = 'problem';
             div.innerHTML = `
