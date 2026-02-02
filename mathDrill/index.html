@@ -6,62 +6,65 @@
     <style>
         @page {
             size: A4 landscape;
-            margin: 8mm;
+            margin: 5mm; /* 余白をさらに絞って安全圏を確保 */
         }
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
-            padding: 0;
+            padding: 5mm;
             color: #222;
+            line-height: 1.2;
         }
         .header {
             text-align: center;
             border-bottom: 3px solid #a51c30;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         .header h1 {
-            margin: 5px 0;
-            font-size: 28px;
+            margin: 2px 0;
+            font-size: 24px; /* 少し小さく */
         }
         .info-section {
             display: flex;
             justify-content: flex-end;
-            gap: 30px;
-            margin-bottom: 10px;
-            font-size: 18px;
+            gap: 25px;
+            margin-bottom: 8px;
+            font-size: 16px;
             font-weight: bold;
         }
+        /* 24問を3列×8行 */
         .container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             column-gap: 15px;
-            row-gap: 8px; 
+            row-gap: 4px; /* 行間を詰めて下切れを防止 */
         }
         .problem {
-            font-size: 42px; 
+            font-size: 34px; /* 42pxから34pxへ。視認性を保ちつつ安全なサイズ */
             font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            padding: 4px 0;
+            padding: 2px 0;
+            border-bottom: 1px solid #f0f0f0; /* ガイドライン */
         }
         .index {
-            font-size: 20px;
+            font-size: 16px;
             color: #555;
-            width: 45px; 
+            width: 40px; 
             margin-right: 2px;
             text-align: left;
         }
         .num {
-            min-width: 50px;
+            min-width: 45px;
             text-align: right;
         }
         .op {
             margin: 0 5px;
         }
         .answer-box {
-            width: 100px;
-            height: 58px;
+            width: 85px;
+            height: 48px; /* 高さを少し抑えました */
             border: 2px solid #000;
             margin-left: 10px;
             background: #fff;
@@ -69,15 +72,16 @@
         @media print {
             .no-print { display: none; }
             body { -webkit-print-color-adjust: exact; }
+            .problem { border-bottom: 1px solid #eee; }
         }
         .no-print {
             background: #eee;
-            padding: 15px;
+            padding: 10px;
             text-align: center;
             border-bottom: 1px solid #ddd;
         }
         button {
-            padding: 12px 24px;
+            padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
             color: white;
@@ -88,15 +92,14 @@
         }
         .btn-generate { background: #2c3e50; }
         .btn-print { background: #a51c30; }
-        button:hover { opacity: 0.8; }
     </style>
 </head>
 <body>
 
 <div class="no-print">
-    <button class="btn-generate" onclick="generateProblems()">新しい問題を生成</button>
+    <button class="btn-generate" onclick="generateProblems()">問題を更新</button>
     <button class="btn-print" onclick="window.print()">このページを印刷</button>
-    <p style="margin-top: 10px; font-size: 14px; color: #666;">※印刷設定で「方向：横」を選択して印刷してください。</p>
+    <p style="margin-top: 5px; font-size: 13px;">※「方向：横」を選択。まだ切れる場合は、印刷設定の「倍率」を95%等に下げてください。</p>
 </div>
 
 <div class="header">
