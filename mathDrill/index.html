@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Aoi's Math Drill</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 8mm;
+        }
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #222;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #a51c30;
+            margin-bottom: 10px;
+        }
+        .header h1 {
+            margin: 5px 0;
+            font-size: 28px;
+        }
+        .info-section {
+            display: flex;
+            justify-content: flex-end;
+            gap: 30px;
+            margin-bottom: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            column-gap: 15px;
+            row-gap: 8px; 
+        }
+        .problem {
+            font-size: 42px; 
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 4px 0;
+        }
+        .index {
+            font-size: 20px;
+            color: #555;
+            width: 45px; 
+            margin-right: 2px;
+            text-align: left;
+        }
+        .num {
+            min-width: 50px;
+            text-align: right;
+        }
+        .op {
+            margin: 0 5px;
+        }
+        .answer-box {
+            width: 100px;
+            height: 58px;
+            border: 2px solid #000;
+            margin-left: 10px;
+            background: #fff;
+        }
+        @media print {
+            .no-print { display: none; }
+            body { -webkit-print-color-adjust: exact; }
+        }
+        .no-print {
+            background: #eee;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 0 10px;
+        }
+        .btn-generate { background: #2c3e50; }
+        .btn-print { background: #a51c30; }
+        button:hover { opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+<div class="no-print">
+    <button class="btn-generate" onclick="generateProblems()">新しい問題を生成</button>
+    <button class="btn-print" onclick="window.print()">このページを印刷</button>
+    <p style="margin-top: 10px; font-size: 14px; color: #666;">※印刷設定で「方向：横」を選択して印刷してください。</p>
+</div>
+
+<div class="header">
+    <h1>Aoi’s Math Drill: Master of Addition</h1>
+</div>
+
+<div class="info-section">
+    <div>Date: ____ / ____ / ____</div>
+    <div>Score: ________ / 24</div>
+</div>
+
+<div id="quiz-container" class="container"></div>
+
+<script>
+    function generateProblems() {
+        const container = document.getElementById('quiz-container');
+        container.innerHTML = '';
+        for (let i = 1; i <= 24; i++) {
+            const n1 = Math.floor(Math.random() * 89) + 10;
+            const n2 = Math.floor(Math.random() * 89) + 10;
+            
+            const div = document.createElement('div');
+            div.className = 'problem';
+            div.innerHTML = `
+                <span class="index">(${i})</span>
+                <span class="num">${n1}</span>
+                <span class="op">+</span>
+                <span class="num">${n2}</span>
+                <span class="op">=</span>
+                <div class="answer-box"></div>
+            `;
+            container.appendChild(div);
+        }
+    }
+    generateProblems();
+</script>
+
+</body>
+</html>
