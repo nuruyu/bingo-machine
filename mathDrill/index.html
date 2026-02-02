@@ -4,27 +4,25 @@
     <meta charset="UTF-8">
     <title>Aoi's Math Drill</title>
     <style>
-        /* 印刷設定: URLや日付（ヘッダー・フッター）を非表示にする魔法のコード */
         @page {
             size: A4 landscape;
-            margin: 10mm; /* ブラウザの自動ヘッダーを押し出すための余白 */
+            margin: 0; /* ブラウザの余白干渉を防ぐため0に */
         }
-        @media print {
-            /* URLなどの標準テキストを消す設定 */
-            @page { margin: 10mm; }
-            body { margin: 0; }
-            .no-print { display: none; }
-            body { -webkit-print-color-adjust: exact; }
-        }
-
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
             padding: 0;
             color: #222;
+            width: 297mm; /* A4横の幅 */
+            height: 210mm; /* A4横の高さ */
+            overflow: hidden; /* はみ出しを強制カット */
         }
         .content-wrapper {
-            padding: 5mm;
+            padding: 10mm 15mm;
+            box-sizing: border-box;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
         .header {
             text-align: center;
@@ -39,18 +37,20 @@
             display: flex;
             justify-content: flex-end;
             gap: 25px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             font-size: 16px;
             font-weight: bold;
         }
+        /* 21問（3列×7行）に設定 */
         .container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            column-gap: 15px;
+            column-gap: 20px;
             row-gap: 5px;
+            flex-grow: 1;
         }
         .problem {
-            font-size: 34px;
+            font-size: 36px; /* 少し大きく戻しました */
             font-weight: bold;
             display: flex;
             align-items: center;
@@ -58,22 +58,26 @@
             border-bottom: 1px solid #f0f0f0;
         }
         .index {
-            font-size: 16px;
+            font-size: 18px;
             color: #555;
-            width: 40px;
+            width: 45px;
             text-align: left;
         }
         .num {
-            min-width: 45px;
+            min-width: 50px;
             text-align: right;
         }
-        .op { margin: 0 5px; }
+        .op { margin: 0 8px; }
         .answer-box {
-            width: 85px;
-            height: 48px;
+            width: 90px;
+            height: 52px;
             border: 2px solid #000;
             margin-left: 10px;
             background: #fff;
+        }
+        @media print {
+            .no-print { display: none; }
+            body { -webkit-print-color-adjust: exact; }
         }
         .no-print {
             background: #eee;
@@ -100,7 +104,7 @@
 <div class="no-print">
     <button class="btn-generate" onclick="generateProblems()">問題を更新</button>
     <button class="btn-print" onclick="window.print()">このページを印刷</button>
-    <p style="margin-top: 10px;">URLが消えない場合は、印刷設定の「オプション」で「ヘッダーとフッター」のチェックを外してください。</p>
+    <p style="margin-top: 5px; font-size: 12px;">※21問（確実に1枚に収まるサイズ）に調整しました。</p>
 </div>
 
 <div class="content-wrapper">
@@ -110,7 +114,7 @@
 
     <div class="info-section">
         <div>Date: ____ / ____ / ____</div>
-        <div>Score: ________ / 24</div>
+        <div>Score: ________ / 21</div>
     </div>
 
     <div id="quiz-container" class="container"></div>
@@ -120,7 +124,8 @@
     function generateProblems() {
         const container = document.getElementById('quiz-container');
         container.innerHTML = '';
-        for (let i = 1; i <= 24; i++) {
+        // 確実に収まる21問
+        for (let i = 1; i <= 21; i++) {
             const n1 = Math.floor(Math.random() * 89) + 10;
             const n2 = Math.floor(Math.random() * 89) + 10;
             const div = document.createElement('div');
