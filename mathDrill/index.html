@@ -2,134 +2,84 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Aoi's Math Drill</title>
+    <title>Aoi's Math Drill - Multi Mode</title>
     <style>
-        /* 印刷の強制ルール */
-        @page {
-            size: A4 landscape;
-            margin: 0;
-        }
-        
+        @page { size: A4 landscape; margin: 0; }
         @media print {
-            html, body {
-                height: 100%;
-                overflow: hidden; /* これで2ページ目を物理的にカット */
-            }
+            html, body { height: 100%; overflow: hidden; }
             .no-print { display: none !important; }
         }
 
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #fff;
+            margin: 0; padding: 0; background: #fff;
         }
 
-        /* コンテンツ全体をA4の高さ(210mm)よりかなり短く(185mm)設計 */
         .content-wrapper {
-            width: 297mm;
-            height: 185mm; 
-            padding: 8mm 15mm;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
+            width: 297mm; height: 185mm; 
+            padding: 8mm 15mm; box-sizing: border-box;
+            display: flex; flex-direction: column;
         }
 
-        .header {
-            text-align: center;
-            border-bottom: 2px solid #a51c30;
-            margin-bottom: 5px;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
+        .header { text-align: center; border-bottom: 2px solid #a51c30; margin-bottom: 5px; }
+        .header h1 { margin: 0; font-size: 24px; }
 
         .info-section {
-            display: flex;
-            justify-content: flex-end;
-            gap: 20px;
-            margin-bottom: 5px;
-            font-size: 14px;
-            font-weight: bold;
+            display: flex; justify-content: flex-end; gap: 20px;
+            margin-bottom: 5px; font-size: 14px; font-weight: bold;
         }
 
-        /* 24問を3列×8行で構成 */
         .container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            column-gap: 20px;
-            row-gap: 0; /* 隙間をゼロに */
-            flex-grow: 1;
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            column-gap: 20px; row-gap: 0; flex-grow: 1;
         }
 
         .problem {
-            font-size: 32px; 
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            padding: 1px 0; /* 限界まで詰める */
-            height: 55px; /* 1問の高さを固定して計算 */
-            border-bottom: 1px solid #f0f0f0;
+            font-size: 28px; /* 3つの数が入るため少しだけ調整 */
+            font-weight: bold; display: flex; align-items: center;
+            height: 55px; border-bottom: 1px solid #f0f0f0;
         }
 
-        .index {
-            font-size: 16px;
-            color: #666;
-            width: 35px;
-            text-align: left;
-        }
-
-        .num {
-            min-width: 45px;
-            text-align: right;
-        }
-
-        .op { margin: 0 5px; }
-
+        .index { font-size: 16px; color: #666; width: 35px; }
+        .num { min-width: 40px; text-align: right; }
+        .op { margin: 0 4px; }
         .answer-box {
-            width: 85px;
-            height: 42px; /* 8行入れるために少し高さを抑えました */
-            border: 2px solid #000;
-            margin-left: 8px;
-            background: #fff;
+            width: 80px; height: 42px; border: 2px solid #000;
+            margin-left: auto; background: #fff;
         }
 
-        .no-print {
-            background: #f8f8f8;
-            padding: 10px;
-            text-align: center;
-            border-bottom: 1px solid #ccc;
-        }
+        /* モード選択ボタンのスタイル */
+        .no-print { background: #f8f8f8; padding: 15px; text-align: center; border-bottom: 1px solid #ccc; }
+        .mode-selector { margin-bottom: 10px; }
         button {
-            padding: 8px 20px;
-            font-size: 14px;
-            cursor: pointer;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-weight: bold;
-            margin: 0 5px;
+            padding: 8px 16px; font-size: 14px; cursor: pointer;
+            color: white; border: none; border-radius: 4px; font-weight: bold; margin: 0 5px;
         }
-        .btn-generate { background: #444; }
+        .btn-mode { background: #555; }
+        .btn-mode.active { background: #0056b3; outline: 3px solid #ffcc00; }
+        .btn-generate { background: #2c3e50; }
         .btn-print { background: #a51c30; }
     </style>
 </head>
 <body>
 
 <div class="no-print">
+    <div class="mode-selector">
+        <button class="btn-mode active" onclick="setMode('add', this)">Step1: 足し算(2桁)</button>
+        <button class="btn-mode" onclick="setMode('sub', this)">Step2: 引き算(2桁)</button>
+        <button class="btn-mode" onclick="setMode('triple', this)">Step3: 3つの足し算</button>
+    </div>
     <button class="btn-generate" onclick="generateProblems()">問題を更新</button>
-    <button class="btn-print" onclick="window.print()">このページを印刷（24問）</button>
-    <p style="font-size: 11px; margin-top: 5px;">2ページ目が出る場合は、印刷設定で<b>「ヘッダーとフッター」をOFF</b>にしてください。</p>
+    <button class="btn-print" onclick="window.print()">このページを印刷</button>
 </div>
 
 <div class="content-wrapper">
     <div class="header">
-        <h1>Aoi’s Math Drill: Master of Addition</h1>
+        <h1 id="drill-title">Aoi’s Math Drill: Master of Addition</h1>
     </div>
 
     <div class="info-section">
-        <div>Date: ____ / ____ / ____</div>
+        <div id="date-label">Date: ____ / ____ / ____</div>
         <div>Score: ________ / 24</div>
     </div>
 
@@ -137,22 +87,50 @@
 </div>
 
 <script>
+    let currentMode = 'add';
+
+    function setMode(mode, btn) {
+        currentMode = mode;
+        // ボタンの見た目を切り替え
+        document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // タイトルの書き換え
+        const title = document.getElementById('drill-title');
+        if(mode === 'add') title.innerText = "Aoi’s Math Drill: Addition (2-Digit)";
+        if(mode === 'sub') title.innerText = "Aoi’s Math Drill: Subtraction (2-Digit)";
+        if(mode === 'triple') title.innerText = "Aoi’s Math Drill: Triple Addition";
+        
+        generateProblems();
+    }
+
     function generateProblems() {
         const container = document.getElementById('quiz-container');
         container.innerHTML = '';
         for (let i = 1; i <= 24; i++) {
-            const n1 = Math.floor(Math.random() * 89) + 10;
-            const n2 = Math.floor(Math.random() * 89) + 10;
+            let problemHtml = `<span class="index">(${i})</span>`;
+            
+            if (currentMode === 'add') {
+                const n1 = Math.floor(Math.random() * 89) + 10;
+                const n2 = Math.floor(Math.random() * 89) + 10;
+                problemHtml += `<span class="num">${n1}</span><span class="op">+</span><span class="num">${n2}</span>`;
+            } 
+            else if (currentMode === 'sub') {
+                const n1 = Math.floor(Math.random() * 70) + 29; // 引きやすくするため大きめ
+                const n2 = Math.floor(Math.random() * (n1 - 10)) + 10; // 答えがマイナスにならない
+                problemHtml += `<span class="num">${n1}</span><span class="op">-</span><span class="num">${n2}</span>`;
+            } 
+            else if (currentMode === 'triple') {
+                const n1 = Math.floor(Math.random() * 40) + 10;
+                const n2 = Math.floor(Math.random() * 40) + 10;
+                const n3 = Math.floor(Math.random() * 40) + 10;
+                problemHtml += `<span class="num">${n1}</span><span class="op">+</span><span class="num">${n2}</span><span class="op">+</span><span class="num">${n3}</span>`;
+            }
+
+            problemHtml += `<span class="op">=</span><div class="answer-box"></div>`;
             const div = document.createElement('div');
             div.className = 'problem';
-            div.innerHTML = `
-                <span class="index">(${i})</span>
-                <span class="num">${n1}</span>
-                <span class="op">+</span>
-                <span class="num">${n2}</span>
-                <span class="op">=</span>
-                <div class="answer-box"></div>
-            `;
+            div.innerHTML = problemHtml;
             container.appendChild(div);
         }
     }
