@@ -61,24 +61,25 @@
             .content-wrapper {
                 width: 297mm !important;
                 height: 210mm !important;
-                padding: 5mm 10mm !important;  /* 余白を削減 */
+                padding: 3mm 8mm !important;  /* 余白をさらに削減 */
                 margin: 0 !important;
                 overflow: hidden !important;
             }
 
             /* ヘッダーを小さく */
-            .header { margin-bottom: 3px !important; }
-            .header h1 { font-size: 18px !important; margin: 2px 0 !important; }
-            .info-section { margin: 3px 0 !important; font-size: 12px !important; }
+            .header { margin-bottom: 2px !important; border-bottom: 2px solid #000 !important; }
+            .header h1 { font-size: 16px !important; margin: 1px 0 !important; padding: 0 !important; }
+            .info-section { margin: 1px 0 !important; font-size: 11px !important; }
 
             /* 問題の高さとgapを削減 */
-            .container { row-gap: 0 !important; column-gap: 15px !important; }
-            .problem { height: 30px !important; }  /* 46px→34px */
+            .container { row-gap: 0 !important; column-gap: 12px !important; }
+            .problem { height: 32px !important; }  /* 46px→32px */
 
             /* フォントサイズを微調整 */
-            .mode-add .problem, .mode-sub .problem { font-size: 26px !important; }
-            .mode-tripleAdd .problem, .mode-tripleSub .problem { font-size: 18px !important; }
-            .answer-box { width: 58px !important; height: 30px !important; }
+            .mode-add .problem, .mode-sub .problem { font-size: 24px !important; }
+            .mode-tripleAdd .problem, .mode-tripleSub .problem { font-size: 17px !important; }
+            .answer-box { width: 55px !important; height: 28px !important; }
+            .index { font-size: 11px !important; }
         }
 
         /* 操作パネル */
