@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aoi's Math Drill - Hybrid Edition</title>
+    <title>Aoi's Math Drill - Hybrid Edition Fix</title>
     <style>
         /* --- 1. PC・印刷用の共通設定（変更なし） --- */
         @page { 
@@ -58,28 +58,6 @@
             background: white;
         }
 
-        /* --- 2. スマホ（画面幅が狭い時）だけの特別設定 --- */
-        @media screen and (max-width: 1200px) {
-            body {
-                background: #e0e0e0; /* 背景を変えてプレビュー感を出す */
-            }
-            .no-print {
-                position: sticky; top: 0; z-index: 1000;
-                width: 100%; box-sizing: border-box;
-            }
-            /* スマホ画面でのみ、突き抜けないように縮小 */
-            .content-wrapper {
-                width: 297mm !important; /* ドリルの形状を維持 */
-                transform: scale(calc(100vw / 310)); /* 画面幅に自動フィット */
-                transform-origin: top left;
-                margin: 10px !important;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            }
-            /* 印刷ボタン周りをスマホで押しやすく */
-            .btn-group { margin-top: 10px; width: 100%; justify-content: center; }
-        }
-
-        /* --- 3. ドリルの中身（PCの状態を維持） --- */
         .header { text-align: center; border-bottom: 3px solid #000; margin-bottom: 5px; }
         .header h1 { margin: 0; font-size: 22px; color: #000; }
         
@@ -109,6 +87,33 @@
         .answer-box {
             width: 65px; height: 34px; border: 2px solid #000;
             margin-left: 8px; background: #fff; flex-shrink: 0;
+        }
+
+        /* --- 2. スマホ（画面幅が狭い時）だけの特別設定 --- */
+        @media screen and (max-width: 1200px) {
+            body { background: #e0e0e0; }
+            .no-print { position: sticky; top: 0; z-index: 1000; width: 100%; box-sizing: border-box; }
+            .content-wrapper {
+                width: 297mm !important;
+                transform: scale(calc(100vw / 310));
+                transform-origin: top left;
+                margin: 10px !important;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            }
+            .btn-group { margin-top: 10px; width: 100%; justify-content: center; }
+        }
+
+        /* --- 3. スマホ印刷時のみ 2ページ目を回避する修正 --- */
+        @media print and (max-width: 1000px) {
+            .content-wrapper {
+                /* 全体をほんの少し（3%）だけ縮小して、スマホ特有の余白干渉を回避 */
+                transform: scale(0.97) !important;
+                transform-origin: top center !important;
+            }
+            .problem {
+                /* 各行の高さを1pxずつ詰め、24問合計で約2.4cmの余裕を捻出 */
+                height: 47px !important;
+            }
         }
     </style>
 </head>
