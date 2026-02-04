@@ -2,13 +2,34 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Aoi's Math Drill - Black Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aoi's Math Drill - Mobile Ready</title>
     <style>
+        /* 1. 基本設定：A4横 */
         @page { size: A4 landscape; margin: 0; }
+        
         @media print {
-            html, body { height: 100%; overflow: hidden; }
+            html, body { 
+                width: 297mm; 
+                height: 210mm; 
+                overflow: hidden; 
+            }
             .no-print { display: none !important; }
-            .content-wrapper { margin: 0 !important; padding: 5mm 10mm !important; }
+            
+            /* スマホ等で100%だと切れる場合の保険 */
+            .content-wrapper {
+                transform: scale(0.96); /* 全体を4%縮小して安全圏に */
+                transform-origin: top center;
+            }
+        }
+
+        /* スマホのプレビュー画面等でも崩れないように */
+        @media screen and (max-width: 768px) {
+            .content-wrapper {
+                width: 1000px; /* 横幅を固定してスマホの自動改行を防ぐ */
+                transform: scale(0.35); /* スマホ画面で見やすく縮小 */
+                transform-origin: top left;
+            }
         }
 
         body {
@@ -17,13 +38,12 @@
         }
 
         .content-wrapper {
-            width: 297mm; height: 180mm; 
-            padding: 8mm 12mm; box-sizing: border-box;
+            width: 297mm; height: 190mm; 
+            padding: 5mm 10mm; box-sizing: border-box;
             display: flex; flex-direction: column;
             margin: 0 auto;
         }
 
-        /* タイトル下のバーを黒に変更 */
         .header { text-align: center; border-bottom: 3px solid #000; margin-bottom: 5px; position: relative; }
         .header h1 { margin: 0; font-size: 22px; color: #000; }
         
@@ -40,20 +60,19 @@
 
         .container {
             display: grid; grid-template-columns: repeat(3, 1fr);
-            column-gap: 25px; row-gap: 0; flex-grow: 1;
+            column-gap: 20px; row-gap: 0; flex-grow: 1;
         }
 
         .problem {
             font-weight: bold; display: flex; align-items: center;
-            height: 52px; border-bottom: 1px solid #f0f0f0;
+            height: 50px; border-bottom: 1px solid #f0f0f0;
             justify-content: flex-start;
         }
 
-        .mode-add .problem, .mode-sub .problem { font-size: 32px; }
-        .mode-tripleAdd .problem, .mode-tripleSub .problem { font-size: 22px; }
+        .mode-add .problem, .mode-sub .problem { font-size: 30px; }
+        .mode-tripleAdd .problem, .mode-tripleSub .problem { font-size: 20px; }
 
-        .index { font-size: 14px; color: #666; width: 35px; flex-shrink: 0; }
-
+        .index { font-size: 13px; color: #666; width: 30px; flex-shrink: 0; }
         .math-part { 
             display: inline-flex; 
             align-items: center; 
@@ -63,11 +82,11 @@
         .op { display: inline-block; width: 0.8em; text-align: center; margin: 0 1px; }
 
         .answer-box {
-            width: 75px; height: 38px; border: 2px solid #000;
-            margin-left: 10px; background: #fff; flex-shrink: 0;
+            width: 70px; height: 36px; border: 2px solid #000;
+            margin-left: 8px; background: #fff; flex-shrink: 0;
         }
 
-        /* 操作パネル（背景色も黒に合わせて調整） */
+        /* 操作パネル */
         .no-print {
             background: #f4f4f4; padding: 15px; text-align: center;
             border-bottom: 2px solid #000;
@@ -76,10 +95,11 @@
             display: inline-block; background: #000; color: white;
             padding: 2px 8px; border-radius: 4px; font-weight: bold; margin-bottom: 5px;
         }
-        select { padding: 6px 12px; font-size: 14px; margin-right: 15px; border-radius: 4px; }
+        select { padding: 8px; font-size: 16px; margin-bottom: 10px; border-radius: 4px; }
+        .btn-group { display: flex; justify-content: center; gap: 10px; }
         button {
-            padding: 8px 20px; font-size: 14px; cursor: pointer;
-            color: white; border: none; border-radius: 4px; font-weight: bold; margin: 0 5px;
+            padding: 10px 15px; font-size: 16px; cursor: pointer;
+            color: white; border: none; border-radius: 4px; font-weight: bold;
         }
         .btn-generate { background: #666; }
         .btn-print { background: #000; }
@@ -88,17 +108,19 @@
 <body class="mode-add">
 
 <div class="no-print">
-    <div class="instruction-badge">⚠️ 印刷設定：必ず「横向き（Landscape）」を選択してください</div>
+    <div class="instruction-badge">⚠️ スマホ印刷：必ず「横向き」に設定！</div>
     <br>
-    <label for="mode">学習モード：</label>
+    <label for="mode">学習モード：</label><br>
     <select id="mode" onchange="changeMode()">
         <option value="add">Step1: 足し算(2桁)</option>
         <option value="sub">Step2: 引き算(2桁)</option>
         <option value="tripleAdd">Step3: 3つの足し算</option>
         <option value="tripleSub">Step4: 3つの引き算</option>
     </select>
-    <button class="btn-generate" onclick="generateProblems()">問題を更新</button>
-    <button class="btn-print" onclick="window.print()">このページを印刷</button>
+    <div class="btn-group">
+        <button class="btn-generate" onclick="generateProblems()">問題を更新</button>
+        <button class="btn-print" onclick="window.print()">印刷する</button>
+    </div>
 </div>
 
 <div class="content-wrapper">
@@ -120,7 +142,6 @@
         const mode = document.getElementById('mode').value;
         const title = document.getElementById('drill-title');
         document.body.className = 'mode-' + mode;
-
         const titles = {
             add: "Aoi’s Math Drill: Addition (2-Digit)",
             sub: "Aoi’s Math Drill: Subtraction (2-Digit)",
@@ -135,49 +156,34 @@
         const mode = document.getElementById('mode').value;
         const container = document.getElementById('quiz-container');
         container.innerHTML = '';
-        
         for (let i = 1; i <= 24; i++) {
             let mathHtml = "";
-            
             if (mode === 'add') {
                 const n1 = rand(10, 99); const n2 = rand(10, 99);
                 mathHtml = createMathHtml([n1, "+", n2]);
-            } 
-            else if (mode === 'sub') {
+            } else if (mode === 'sub') {
                 const n1 = rand(30, 99); const n2 = rand(10, n1 - 10);
                 mathHtml = createMathHtml([n1, "-", n2]);
-            } 
-            else if (mode === 'tripleAdd') {
+            } else if (mode === 'tripleAdd') {
                 const n1 = rand(10, 30); const n2 = rand(10, 30); const n3 = rand(10, 30);
                 mathHtml = createMathHtml([n1, "+", n2, "+", n3]);
-            }
-            else if (mode === 'tripleSub') {
-                const n1 = rand(50, 99);
-                const n2 = rand(10, 30);
-                const n3 = rand(1, n1 - n2 - 5);
+            } else if (mode === 'tripleSub') {
+                const n1 = rand(50, 99); const n2 = rand(10, 30); const n3 = rand(1, n1 - n2 - 5);
                 mathHtml = createMathHtml([n1, "-", n2, "-", n3]);
             }
-
             const div = document.createElement('div');
             div.className = 'problem';
-            div.innerHTML = `
-                <span class="index">(${i})</span>
-                <div class="math-part">${mathHtml}<span class="op">=</span></div>
-                <div class="answer-box"></div>
-            `;
+            div.innerHTML = `<span class="index">(${i})</span><div class="math-part">${mathHtml}<span class="op">=</span></div><div class="answer-box"></div>`;
             container.appendChild(div);
         }
     }
-
     function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-
     function createMathHtml(parts) {
         return parts.map(p => {
             if (typeof p === 'number') return `<span class="num">${p}</span>`;
             return `<span class="op">${p}</span>`;
         }).join('');
     }
-
     generateProblems();
 </script>
 
