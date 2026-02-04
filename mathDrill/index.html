@@ -3,42 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aoi's Math Drill - Standard Edition</title>
+    <title>Aoi's Math Drill - Mobile Final</title>
     <style>
+        /* 1. 印刷設定 */
         @page { 
             size: A4 landscape; 
-            margin: 0 !important; 
+            margin: 0; 
         }
         
         @media print {
             html, body { 
-                height: 100%;
-                width: 100%;
-                margin: 0 !important;
-                padding: 0 !important;
+                width: 297mm;
+                height: 210mm;
                 overflow: hidden !important;
+                background: #fff;
             }
             .no-print { display: none !important; }
             
+            /* スマホのはみ出し対策：全体を少し縮小して中央に寄せる */
             .content-wrapper {
+                width: 297mm !important;
+                height: 210mm !important;
                 margin: 0 auto !important;
-                height: 100vh !important;
+                transform: scale(0.91); /* 9%縮小して安全圏へ */
+                transform-origin: top center;
             }
         }
 
+        /* 2. 画面表示設定 */
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            margin: 0; padding: 0; background: #fff;
+            margin: 0; padding: 0; background: #555;
+            overflow-x: hidden;
         }
 
+        .no-print {
+            background: #f4f4f4; padding: 15px; text-align: center;
+            border-bottom: 2px solid #000;
+            position: sticky; top: 0; z-index: 100;
+        }
+
+        select { padding: 10px; font-size: 16px; border-radius: 4px; width: 90%; max-width: 300px; margin-bottom: 10px; }
+        .btn-group { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; align-items: center; }
+        
+        button {
+            padding: 12px 20px; font-size: 16px; cursor: pointer;
+            color: white; border: none; border-radius: 6px; font-weight: bold;
+        }
+        .btn-generate { background: #666; }
+        .btn-print { background: #000; }
+        .print-notice { font-size: 13px; color: #d32f2f; font-weight: bold; display: block; width: 100%; margin-top: 5px; }
+
+        /* ドリル本体（画面ではスマホ幅に合わせて縮小） */
         .content-wrapper {
             width: 297mm;
-            height: 195mm; 
+            min-height: 200mm;
             padding: 10mm 15mm;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
             margin: 0 auto;
+            background: white;
+            transform: scale(calc(100vw / 310));
+            transform-origin: top left;
+        }
+
+        /* PCなど大きな画面では適度なサイズに */
+        @media screen and (min-width: 1200px) {
+            .content-wrapper {
+                transform: scale(0.8);
+                transform-origin: top center;
+                margin-top: 20px;
+            }
         }
 
         .header { text-align: center; border-bottom: 3px solid #000; margin-bottom: 5px; }
@@ -71,21 +107,6 @@
             width: 65px; height: 34px; border: 2px solid #000;
             margin-left: 8px; background: #fff; flex-shrink: 0;
         }
-
-        /* 操作パネル */
-        .no-print {
-            background: #f4f4f4; padding: 20px 10px; text-align: center;
-            border-bottom: 2px solid #000;
-        }
-        select { padding: 10px; font-size: 16px; border-radius: 4px; vertical-align: middle; }
-        .btn-group { display: inline-flex; align-items: center; gap: 10px; margin-left: 10px; }
-        button {
-            padding: 10px 20px; font-size: 16px; cursor: pointer;
-            color: white; border: none; border-radius: 6px; font-weight: bold;
-        }
-        .btn-generate { background: #666; }
-        .btn-print { background: #000; }
-        .print-notice { font-size: 14px; color: #d32f2f; font-weight: bold; }
     </style>
 </head>
 <body class="mode-add">
