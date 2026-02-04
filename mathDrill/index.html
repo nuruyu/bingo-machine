@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aoi's Math Drill - Hybrid Final</title>
+    <title>Aoi's Math Drill - PC Protected</title>
     <style>
-        /* --- 1. PC・印刷用の共通設定（変更なし） --- */
+        /* --- 1. PC・基本レイアウト (ここを絶対基準とする) --- */
         @page { 
             size: A4 landscape; 
             margin: 0 !important; 
@@ -22,7 +22,8 @@
                 width: 297mm !important;
                 height: 100% !important;
                 margin: 0 auto !important;
-                transform: none !important;
+                /* PCでは変形させない */
+                transform: none !important; 
             }
         }
 
@@ -30,22 +31,6 @@
             font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0; padding: 0; background: #fff;
         }
-
-        .no-print {
-            background: #f4f4f4; padding: 15px; text-align: center;
-            border-bottom: 2px solid #000;
-        }
-
-        select { padding: 10px; font-size: 16px; border-radius: 4px; vertical-align: middle; }
-        .btn-group { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 10px; align-items: center; margin-left: 10px; }
-        
-        button {
-            padding: 10px 20px; font-size: 16px; cursor: pointer;
-            color: white; border: none; border-radius: 6px; font-weight: bold;
-        }
-        .btn-generate { background: #666; }
-        .btn-print { background: #000; }
-        .print-notice { font-size: 14px; color: #d32f2f; font-weight: bold; }
 
         .content-wrapper {
             width: 297mm;
@@ -89,34 +74,40 @@
             margin-left: 8px; background: #fff; flex-shrink: 0;
         }
 
-        /* --- 2. スマホ（画面幅が狭い時）だけの特別設定 --- */
-        @media screen and (max-width: 1200px) {
+        /* 操作パネル */
+        .no-print {
+            background: #f4f4f4; padding: 15px; text-align: center;
+            border-bottom: 2px solid #000;
+        }
+        select { padding: 10px; font-size: 16px; border-radius: 4px; vertical-align: middle; }
+        .btn-group { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 10px; align-items: center; margin-left: 10px; }
+        button {
+            padding: 10px 20px; font-size: 16px; cursor: pointer;
+            color: white; border: none; border-radius: 6px; font-weight: bold;
+        }
+        .btn-generate { background: #666; }
+        .btn-print { background: #000; }
+        .print-notice { font-size: 14px; color: #d32f2f; font-weight: bold; }
+
+        /* --- 2. スマホ表示用 (PCには影響しない幅制限) --- */
+        @media screen and (max-width: 800px) {
             body { background: #e0e0e0; }
-            .no-print { position: sticky; top: 0; z-index: 1000; width: 100%; box-sizing: border-box; }
             .content-wrapper {
-                width: 297mm !important;
                 transform: scale(calc(100vw / 310));
                 transform-origin: top left;
                 margin: 10px !important;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             }
         }
 
-        /* --- 3. スマホ印刷時のみ 2ページ目を【徹底回避】する修正 --- */
-        @media print and (max-width: 1000px) {
+        /* --- 3. スマホ印刷時のみ 2ページ目を回避 (PC印刷時は無視される) --- */
+        @media print and (max-device-width: 800px) {
             .content-wrapper {
-                /* 全体をわずかに小さくしつつ、上方向へ少し寄せる */
-                transform: scale(0.95) !important;
+                transform: scale(0.93) !important;
                 transform-origin: top center !important;
-                margin-top: -5mm !important; 
-                padding-bottom: 0 !important;
+                margin-top: -8mm !important;
             }
             .problem {
-                /* 行の高さをさらに詰め、全体で約1.2cmのスペースを空ける */
-                height: 46px !important;
-            }
-            .info-section {
-                margin: 2px 0 !important; /* 日付欄の余白もカット */
+                height: 44px !important; /* スマホ印刷時のみ行間を詰める */
             }
         }
     </style>
