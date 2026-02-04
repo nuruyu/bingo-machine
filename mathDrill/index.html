@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aoi's Math Drill - Hybrid Edition Fix</title>
+    <title>Aoi's Math Drill - Hybrid Final</title>
     <style>
         /* --- 1. PC・印刷用の共通設定（変更なし） --- */
         @page { 
@@ -100,19 +100,23 @@
                 margin: 10px !important;
                 box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             }
-            .btn-group { margin-top: 10px; width: 100%; justify-content: center; }
         }
 
-        /* --- 3. スマホ印刷時のみ 2ページ目を回避する修正 --- */
+        /* --- 3. スマホ印刷時のみ 2ページ目を【徹底回避】する修正 --- */
         @media print and (max-width: 1000px) {
             .content-wrapper {
-                /* 全体をほんの少し（3%）だけ縮小して、スマホ特有の余白干渉を回避 */
-                transform: scale(0.97) !important;
+                /* 全体をわずかに小さくしつつ、上方向へ少し寄せる */
+                transform: scale(0.95) !important;
                 transform-origin: top center !important;
+                margin-top: -5mm !important; 
+                padding-bottom: 0 !important;
             }
             .problem {
-                /* 各行の高さを1pxずつ詰め、24問合計で約2.4cmの余裕を捻出 */
-                height: 47px !important;
+                /* 行の高さをさらに詰め、全体で約1.2cmのスペースを空ける */
+                height: 46px !important;
+            }
+            .info-section {
+                margin: 2px 0 !important; /* 日付欄の余白もカット */
             }
         }
     </style>
