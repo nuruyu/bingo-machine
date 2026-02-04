@@ -57,13 +57,27 @@
 
         /* --- 3. スマホ印刷用（画面幅が狭いデバイスのみ適用） --- */
         @media print and (max-device-width: 800px) {
+            @page {
+                size: A4 landscape;
+                margin: 0 !important;
+            }
+
+            /* 2ページ目以降を非表示 */
+            @page:first {
+                size: A4 landscape;
+                margin: 0 !important;
+            }
+
             /* 高さを明示的に制限 */
             .content-wrapper {
                 width: 297mm !important;
                 height: 210mm !important;
+                max-height: 210mm !important;
                 padding: 2mm 5mm !important;  /* 余白を限界まで削減 */
                 margin: 0 !important;
                 overflow: hidden !important;
+                page-break-after: avoid !important;
+                page-break-inside: avoid !important;
             }
 
             /* ヘッダーを小さく */
