@@ -58,12 +58,20 @@
         /* --- 3. スマホ印刷用（画面幅が狭いデバイスのみ適用） --- */
         @media print and (max-device-width: 800px) {
             .content-wrapper {
-                width: 260mm !important; /* 少し内側に寄せる */
-                transform: scale(0.75) !important; /* スマホ特有の余白ズレを吸収 */
+                width: 297mm !important;
+                height: 210mm !important;
+                transform: scale(0.65) !important; /* さらに縮小 */
                 transform-origin: top center !important;
-                margin-top: -8mm !important; /* 上の余白を詰める */
-                padding: 8mm 12mm !important; /* paddingも調整 */
+                margin-top: -15mm !important;
+                padding: 6mm 10mm !important;
             }
+
+            /* 各要素のサイズも調整 */
+            .header h1 { font-size: 18px !important; }
+            .problem { height: 40px !important; }
+            .mode-add .problem, .mode-sub .problem { font-size: 26px !important; }
+            .mode-tripleAdd .problem, .mode-tripleSub .problem { font-size: 17px !important; }
+            .answer-box { width: 55px !important; height: 28px !important; }
         }
 
         /* 操作パネル */
